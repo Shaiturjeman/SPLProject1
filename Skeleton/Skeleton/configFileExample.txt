@@ -1,0 +1,13 @@
+# beneficiaries - beneficiary <beneficiary_name> <facility_type> <location_distance> <max_requests>
+
+beneficiary CityHospital hospital 3 2       
+# Example of a hospital beneficiary called CityHospital , distance=3, max_requests=2
+beneficiary CommunityClinic clinic 2 1
+# Example of a clinic beneficiary called CommunityClinic, distance=2, max_requests=1
+
+# Volunteers - volunteer <volunteer_name> <volunteer_role> <cooldown>/<maxDistance> <distance_per_step>(depend if the volunteer is an Inventory Manager or a Courier)
+
+volunteer Monica inventory manager 2          # Example of an inventory manager, coolDown=2
+volunteer Ross inventory manager 12 5         # Example of a inventory manager, cool_down=12
+volunteer Chandler courier 7 4                # Example of a courier, maxDistance=7, distance_per_step=4
+volunteer Joey courier 15 3                # Example of a courier, maxDistance=15, distance_per_step=3
