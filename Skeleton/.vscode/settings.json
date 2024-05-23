@@ -1,12 +1,12 @@
 {
     "makefile.launchConfigurations": [
         {
-            "cwd": "/workspaces/Skeleton/bin",
-            "binaryPath": "/workspaces/Skeleton/bin/my_program",
+            "cwd": "/workspaces/SPLProject1/Skeleton/bin",
+            "binaryPath": "/workspaces/SPLProject1/Skeleton/Skeleton/bin/my_program",
             "binaryArgs": []
         }
     ],
-    "makefile.makefilePath": "",
+    "makefile.makefilePath": "/workspaces/SPLProject1/Skeleton/Skeleton/makefile",
     "files.associations": {
         "ostream": "cpp",
         "array": "cpp",
