@@ -51,6 +51,7 @@ Beneficiary& MedicalWareHouse::getBeneficiary(int beneficiaryId) const {
         throw std::runtime_error("there is no Beneficiary with this id");
     }
 }
+// Get a Volunteer by ID
 Volunteer& MedicalWareHouse::getVolunteer(int volunteerId) const {
     if(volunteers.empty()){
         throw std::runtime_error("there is no volunteers");
@@ -64,7 +65,7 @@ Volunteer& MedicalWareHouse::getVolunteer(int volunteerId) const {
         throw std::runtime_error("there is no volunteer with this id");
     }
 }
-
+// Get a SupplyRequest by ID
 SupplyRequest& MedicalWareHouse::getRequest(int requestId) const {
     if (pendingRequests.empty() && inProcessRequests.empty() && completedRequests.empty()){
         throw std::runtime_error("there is no requests");
@@ -90,6 +91,25 @@ SupplyRequest& MedicalWareHouse::getRequest(int requestId) const {
 
     
 }
+// Get all actions
+const vector<CoreAction*>& MedicalWareHouse::getActions() const {
+    if(actionsLog.empty()){
+        throw std::runtime_error("there is no actions");
+    }
+    else{
+        return actionsLog;
+    }
+
+}
+// Close the warehouse
+void MedicalWareHouse::close() {
+    isOpen = false;
+}
+// Open the warehouse
+void MedicalWareHouse::open() {
+    isOpen = true;  
+}
+
 
     
     // TODO implement
