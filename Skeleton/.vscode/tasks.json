@@ -10,7 +10,7 @@
                 "${file}",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
-                "/workspaces/Skeleton/Skeleton/configFileExample.txt"
+                "/workspaces/SPLProject1/Skeleton/Skeleton/configFileExample.txt"
             ],
             "options": {
                 "cwd": "${fileDirname}"
