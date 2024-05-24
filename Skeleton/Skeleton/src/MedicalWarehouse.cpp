@@ -38,20 +38,58 @@ void MedicalWareHouse::addAction(CoreAction* action) {
 }
 
 // Get a Beneficiary by ID
-Beneficiary* MedicalWareHouse::getBeneficiary(int beneficiaryId) const {     
+Beneficiary& MedicalWareHouse::getBeneficiary(int beneficiaryId) const {     
     if(Beneficiaries.empty()){
         throw std::runtime_error("there is no Beneficiaries");
     }
     else{
         for(Beneficiary* beneficiary : Beneficiaries){
             if(beneficiary->getId() == beneficiaryId){
-                return beneficiary;
+                return *beneficiary;
             }
         }
+        throw std::runtime_error("there is no Beneficiary with this id");
+    }
+}
+Volunteer& MedicalWareHouse::getVolunteer(int volunteerId) const {
+    if(volunteers.empty()){
+        throw std::runtime_error("there is no volunteers");
+    }
+    else{
+        for(Volunteer* volunteer : volunteers){
+            if(volunteer->getId() == volunteerId){
+                return *volunteer;
+            }
+        }
+        throw std::runtime_error("there is no volunteer with this id");
     }
 }
 
+SupplyRequest& MedicalWareHouse::getRequest(int requestId) const {
+    if (pendingRequests.empty() && inProcessRequests.empty() && completedRequests.empty()){
+        throw std::runtime_error("there is no requests");
+    }
+    else{
+        for(SupplyRequest* request : pendingRequests){
+            if(request->getId() == requestId){
+                return *request;
+            }
+        }
+        for(SupplyRequest* request : inProcessRequests){
+            if(request->getId() == requestId){
+                return *request;
+            }
+        }
+        for(SupplyRequest* request : completedRequests){
+            if(request->getId() == requestId){
+                return *request;
+            }
+        }
+        throw std::runtime_error("there is no request with this id");
+    }
 
+    
+}
 
     
     // TODO implement
