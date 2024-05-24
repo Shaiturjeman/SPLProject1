@@ -20,14 +20,23 @@ class Beneficiary {
 
         virtual Beneficiary *clone() const = 0; // Return a copy of the Beneficiary
 
+
+        //Copy Constructor
+        Beneficiary(const Beneficiary& other);
+             
         
+
+
     private:
         const int id;
         const string name;
         const int locationDistance;
         const int maxRequests;
         vector<int> requestsId;
+
+
 };
+
 
 
 class HospitalBeneficiary: public Beneficiary {
