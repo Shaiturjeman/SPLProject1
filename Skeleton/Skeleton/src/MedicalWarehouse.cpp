@@ -2,23 +2,43 @@
 #include "Volunteer.h"
 #include "SupplyRequest.h"
 #include "Beneficiary.h"    
-
+#include <fstream>
+#include <stdexcept>
 #include <vector>
 #include <iostream>
 
 using namespace std;
-MedicalWareHouse:: MedicalWareHouse(const string &configFilePath) {
-    volunteers = std::vector<Volunteer*>();      
-    pendingRequests = std::vector<SupplyRequest*>();   
-    inProcessRequests = std::vector<SupplyRequest*>();
-    completedRequests = std::vector<SupplyRequest*>();  
-    Beneficiaries = std::vector<Beneficiary*>();    
-}
-    void MedicalWareHouse::start(){
-        std:: cout << "Medical services are now open!" << std::endl;
+
+
+// Constructor implementation
+MedicalWareHouse::MedicalWareHouse(const std::string &configFilePath)
+    : isOpen(false), beneficiaryCounter(0), volunteerCounter(0) {
+    // Load configuration from file, initialize members
+    std::ifstream configFile(configFilePath);
+    if (!configFile) {
+        throw std::runtime_error("Unable to open config file: " + configFilePath);
     }
-    
-      
+    // Parse the configuration file and initialize warehouse data
+}
+
+// Start the warehouse operations
+void MedicalWareHouse::start() {
+    isOpen = true;
+    std::cout << "Medical Warehouse is now open!" << std::endl;
+}
+
+// Add a new supply request
+void MedicalWareHouse::addRequest(SupplyRequest* request) {
+    pendingRequests.push_back(request);
+}
+
+// Add a new action
+void MedicalWareHouse::addAction(CoreAction* action) {
+    actionsLog.push_back(action);
+}
+
+
+
     
     // TODO implement
 

@@ -63,7 +63,7 @@ class RegisterBeneficiary : public CoreAction {
         string toString() const override;
     private:
         const string beneficiaryName;
-        const beneficiaryType beneficiaryType;
+        const ::beneficiaryType beneficiaryType;
         const int distance;
         const int maxRequests;
 };
