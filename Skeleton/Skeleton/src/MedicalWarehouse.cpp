@@ -37,6 +37,20 @@ void MedicalWareHouse::addAction(CoreAction* action) {
     actionsLog.push_back(action);
 }
 
+// Get a Beneficiary by ID
+Beneficiary* MedicalWareHouse::getBeneficiary(int beneficiaryId) const {     
+    if(Beneficiaries.empty()){
+        throw std::runtime_error("there is no Beneficiaries");
+    }
+    else{
+        for(Beneficiary* beneficiary : Beneficiaries){
+            if(beneficiary->getId() == beneficiaryId){
+                return beneficiary;
+            }
+        }
+    }
+}
+
 
 
     

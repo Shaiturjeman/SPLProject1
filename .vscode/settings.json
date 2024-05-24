@@ -4,6 +4,11 @@
             "cwd": "/workspaces/bin",
             "binaryPath": "/workspaces/bin/my_program",
             "binaryArgs": []
+        },
+        {
+            "cwd": "/workspaces/SPLProject1/Skeleton/Skeleton/bin",
+            "binaryPath": "/workspaces/SPLProject1/Skeleton/Skeleton/bin/my_program",
+            "binaryArgs": []
         }
     ]
 }
