@@ -28,6 +28,12 @@ class SupplyRequest {
         RequestStatus getStatus() const;
         const string toString() const;
 
+        //Copy constructor
+        SupplyRequest(const SupplyRequest& other);
+
+        //Destructor
+        ~SupplyRequest();
+
     private:
         const int id;
         const int beneficiaryId;

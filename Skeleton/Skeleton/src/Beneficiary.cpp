@@ -1,5 +1,9 @@
 #include "Beneficiary.h"
-#include <string> // Include the necessary header file for the 'string' type
+#include "SupplyRequest.h"
+#include "MedicalWarehouse.h"
+#include "Volunteer.h"
+#include "Action.h" 
+#include <string> 
 #include <stdexcept>
 
 // Constructor implementation
@@ -90,6 +94,13 @@ ClinicBeneficiary::ClinicBeneficiary(int id, const string &name, int locationDis
 ClinicBeneficiary *ClinicBeneficiary::clone() const {
     return new ClinicBeneficiary(*this);
 
+}
+
+//Destructor
+Beneficiary::~Beneficiary() {
+    for (int i = 0; i < requestsId.size(); i++) {
+        requestsId.pop_back();
+    }
 }
 
 

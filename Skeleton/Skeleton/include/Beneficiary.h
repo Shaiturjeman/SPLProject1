@@ -23,7 +23,10 @@ class Beneficiary {
 
         //Copy Constructor
         Beneficiary(const Beneficiary& other);
-             
+
+
+        //Destructor
+        virtual ~Beneficiary();     
         
 
 
@@ -56,3 +59,4 @@ class ClinicBeneficiary: public Beneficiary {
     private:
         
 };
+
