@@ -9,55 +9,54 @@
 
 using namespace std;
 
-// Constructor implementation
+// Constructor implementation.
 Volunteer::Volunteer(int id, const string &name):id(id) , name(name) {
     if(id<0){
-        throw std::runtime_error("id must be positive");
+        throw std::runtime_error("ID must be positive");
     }
     activeRequestId = NO_REQUEST;
     completedRequestId = NO_REQUEST;
 }
 
-//get the ID of the Volunteer
+//get the ID of the Volunteer.
 int Volunteer::getId() const{
     return id;
 }  
 
-//get the name of the Volunteer
+//get the name of the Volunteer.
 const string& Volunteer::getName() const {
     return name;
 }
 
-//get the active request ID of the Volunteer
+//get the active request ID of the Volunteer.
 int Volunteer::getActiveRequestId() const {
     return activeRequestId;
 }
 
-//get the completed request ID of the Volunteer
+//get the completed request ID of the Volunteer.
 int Volunteer::getCompletedRequestId() const {
     return completedRequestId;
 }
 
-//check if the Volunteer is busy
+//check if the Volunteer is busy.
 bool Volunteer::isBusy() const {
     int busy = getActiveRequestId();
     return busy!=NO_REQUEST;
 }
 
 
-//InventoryManagerVolunteer constructor
+//InventoryManagerVolunteer constructor.
 InventoryManagerVolunteer::InventoryManagerVolunteer(int id, const string &name , int coolDown):
      Volunteer(id , name) , coolDown(coolDown) {
-        timeLeft = coolDown;
+        timeLeft = NO_REQUEST;
      }
 
-
-//Clone the InventoryManagerVolunteer
+//Clone the InventoryManagerVolunteer.
 InventoryManagerVolunteer * InventoryManagerVolunteer::clone() const { 
     return new InventoryManagerVolunteer(*this);
 }
 
-//Check if the InventoryManagerVolunteer can take the request
+//Check if the InventoryManagerVolunteer can take the request.
 void InventoryManagerVolunteer::step() {
     if (!isBusy())
     {
@@ -66,39 +65,47 @@ void InventoryManagerVolunteer::step() {
     }
 }
 
-//Get the coolDown of the InventoryManagerVolunteer
+//Get the coolDown of the InventoryManagerVolunteer.
 int InventoryManagerVolunteer::getCoolDown() const {
     return coolDown;
 }
 
-// Get the time left of the InventoryManagerVolunteer
+// Get the time left of the InventoryManagerVolunteer.
 int InventoryManagerVolunteer::getTimeLeft() const {
+    if (timeLeft==NO_REQUEST)
+    {
+        throw std::runtime_error("No request is being processed");
+    }
     return timeLeft;
 }
 
 
-//Decrease the time left of the InventoryManagerVolunteer
+//Decrease the time left of the InventoryManagerVolunteer.
 bool InventoryManagerVolunteer::decreaseCoolDown() {
     if(timeLeft>0){
         timeLeft--;
     }
-    return timeLeft==0;
-}
-
-
-//Check if the InventoryManagerVolunteer has requests left
-bool InventoryManagerVolunteer::hasRequestsLeft() const {
-    return activeRequestId!=NO_REQUEST;
-
-}
+    if (timeLeft==0)
+    {
+        timeLeft = NO_REQUEST;
+        return true;
+    }
+    return false;
     
-
-//Check if the InventoryManagerVolunteer can take the request
-bool InventoryManagerVolunteer::canTakeRequest(const SupplyRequest &request) const {
-    return !isBusy();   
 }
 
-// Inventory Manager accepts the request
+
+//Check if the InventoryManagerVolunteer has requests left.
+bool InventoryManagerVolunteer::hasRequestsLeft() const {
+
+}
+
+//Check if the InventoryManagerVolunteer can take the request.
+bool InventoryManagerVolunteer::canTakeRequest(const SupplyRequest &request) const {
+    
+}
+
+// Inventory Manager accepts the request.
 void InventoryManagerVolunteer::acceptRequest(const SupplyRequest &request) {
     if (isBusy())
     {
@@ -108,16 +115,71 @@ void InventoryManagerVolunteer::acceptRequest(const SupplyRequest &request) {
     timeLeft = coolDown;
 }
 
-//Convert the InventoryManagerVolunteer to string
+//Convert the InventoryManagerVolunteer to string.
 string InventoryManagerVolunteer::toString() const{
-    return "Inventory Manager Volunteer " 
-    + getName() + "with ID " 
+    return "Inventory Manager Volunteer: " 
+    + getName() + ", ID: " 
     + std::to_string(getId()) 
     + "has cool down time of: "
     +std::to_string(coolDown)
     + "and time left: " 
     +std::to_string(timeLeft);
 }
+
+//CourierVolunteer constructor.
+CourierVolunteer::CourierVolunteer(int id, const string &name, int maxDistance, int distancePerStep):
+    Volunteer(id, name) , maxDistance(maxDistance) , distancePerStep(distancePerStep) {
+        distanceLeft = NO_REQUEST;
+}
+
+//Clone the CourierVolunteer.
+CourierVolunteer* CourierVolunteer::clone() const {
+    return new CourierVolunteer(*this);
+}
+
+// Get the distance left until the volunteer finishes his current Request.
+int CourierVolunteer::getDistanceLeft() const {
+    if(distanceLeft==NO_REQUEST)
+    {
+        throw std::runtime_error("No request is being processed");
+    }
+    return distanceLeft;
+}
+
+// Get the maximum distance of any request the volunteer can take.
+int CourierVolunteer::getMaxDistance() const {
+    return maxDistance;
+}
+
+// Get the distance the volunteer does in one step.
+int CourierVolunteer::getDistancePerStep() const {
+    return distancePerStep;
+}
+
+//Decreasing the distanceLeft by distancePerStep, and returns true if the courier has reached his destination, and false otherwise.
+bool CourierVolunteer::decreaseDistanceLeft() {
+    distanceLeft -= distancePerStep;
+    if (distanceLeft<=0)
+    {
+        distanceLeft = NO_REQUEST;
+        return true;
+    }
+    return false;
+}
+
+bool CourierVolunteer::hasRequestLeft() const {
+    
+}
+
+//Signal if the volunteer is not busy and the Request is within the maxDistance
+bool CourierVolunteer::canTakeRequest(const SupplyRequest &request) const {
+    return !isBusy() && 
+}
+
+void CourierVolunteer::acceptRequest(const SupplyRequest &request) {
+
+}
+
 
 
 
