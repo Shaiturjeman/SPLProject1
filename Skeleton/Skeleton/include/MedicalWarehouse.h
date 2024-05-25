@@ -24,6 +24,15 @@ class MedicalWareHouse {
         const vector<CoreAction*> &getActions() const;
         void close();
         void open();
+        Volunteer *getInventoryManager();
+        SupplyRequest *getPendingRequest();
+        Volunteer *getCourierVolunteer();
+        SupplyRequest *getCollectingRequest();
+        void stepInc();
+        bool BeneficiaryCheck(int beneId);
+        int getBeneficiaryCounter();
+        void addBeneficiary(Beneficiary* beneficiary);
+
 
     private:
         bool isOpen;

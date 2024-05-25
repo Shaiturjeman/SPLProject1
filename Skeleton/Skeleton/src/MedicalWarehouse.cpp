@@ -29,8 +29,22 @@ void MedicalWareHouse::start() {
 
 // Add a new supply request
 void MedicalWareHouse::addRequest(SupplyRequest* request) {
-    pendingRequests.push_back(request);
+    if(request == nullptr){
+        throw std::runtime_error("request is null");
+    }
+    else if(request->getStatus() == RequestStatus::PENDING){
+        pendingRequests.push_back(request);
+    }
+    else if(request->getStatus() == RequestStatus::COLLECTING
+     || request->getStatus() == RequestStatus::ON_THE_WAY){
+        inProcessRequests.push_back(request);
+    }
+    else if(request->getStatus() == RequestStatus::DONE){
+        completedRequests.push_back(request);
+    }
+
 }
+
 
 // Add a new action
 void MedicalWareHouse::addAction(CoreAction* action) {
@@ -51,6 +65,8 @@ Beneficiary& MedicalWareHouse::getBeneficiary(int beneficiaryId) const {
         throw std::runtime_error("there is no Beneficiary with this id");
     }
 }
+
+
 // Get a Volunteer by ID
 Volunteer& MedicalWareHouse::getVolunteer(int volunteerId) const {
     if(volunteers.empty()){
@@ -65,10 +81,12 @@ Volunteer& MedicalWareHouse::getVolunteer(int volunteerId) const {
         throw std::runtime_error("there is no volunteer with this id");
     }
 }
+
+
 // Get a SupplyRequest by ID
 SupplyRequest& MedicalWareHouse::getRequest(int requestId) const {
     if (pendingRequests.empty() && inProcessRequests.empty() && completedRequests.empty()){
-        throw std::runtime_error("there is no requests");
+        throw std::runtime_error("Request does not exist");
     }
     else{
         for(SupplyRequest* request : pendingRequests){
@@ -91,6 +109,8 @@ SupplyRequest& MedicalWareHouse::getRequest(int requestId) const {
 
     
 }
+
+
 // Get all actions
 const vector<CoreAction*>& MedicalWareHouse::getActions() const {
     if(actionsLog.empty()){
@@ -101,8 +121,137 @@ const vector<CoreAction*>& MedicalWareHouse::getActions() const {
     }
 
 }
+
+// Get available Inventory Manager
+Volunteer* MedicalWareHouse::getInventoryManager() {
+    if(volunteers.empty()){
+        throw std::runtime_error("there is no volunteers");
+    }
+    else{
+        for(Volunteer* volunteer : volunteers){
+            InventoryManagerVolunteer* imv = dynamic_cast<InventoryManagerVolunteer*>(volunteer);
+            if((imv != nullptr ) && (imv->isBusy() == false)){
+                return volunteer;
+            }
+        }
+        return nullptr;
+    }
+}
+
+// Get the next pending request
+SupplyRequest* MedicalWareHouse::getPendingRequest() {
+    if(pendingRequests.empty()){
+        return nullptr;
+    }
+    else{
+        SupplyRequest* lastRequest = pendingRequests.front();
+        pendingRequests.erase(pendingRequests.begin()) ;
+        return lastRequest;
+    }
+}
+
+// Get Courier Volunteer
+Volunteer* MedicalWareHouse::getCourierVolunteer() {
+    if(volunteers.empty()){
+        throw std::runtime_error("there is no volunteers");
+    }
+    else{
+        for(Volunteer* volunteer : volunteers){
+            CourierVolunteer* cv = dynamic_cast<CourierVolunteer*>(volunteer);
+            if((cv != nullptr ) && (cv->isBusy() == false)){
+                return volunteer;
+            }
+        }
+        return nullptr;
+    }
+}
+
+// Get the next collecting request
+SupplyRequest* MedicalWareHouse::getCollectingRequest() {
+    if(inProcessRequests.empty()){
+        return nullptr;
+    }
+    else{
+        for(SupplyRequest* request : inProcessRequests){
+            if(request->getStatus() == RequestStatus::COLLECTING){
+                SupplyRequest* lastRequest = request;
+                lastRequest->setStatus(RequestStatus::ON_THE_WAY);
+                return lastRequest;
+            }
+        }
+
+    }
+    return nullptr;
+}
+
+//Incrememnt the step
+void MedicalWareHouse::stepInc(){
+    if(!(volunteers.empty())){
+        for(Volunteer* volunteer : volunteers){
+            if(CourierVolunteer* cv = dynamic_cast<CourierVolunteer*>(volunteer)){
+                if(cv->isBusy()){
+                    cv->step();
+                }
+                else{
+                    int cReq = cv->getCompletedRequestId();
+                    SupplyRequest request = getRequest(cReq);
+                    addRequest(&request);   
+                }
+            }
+            else if(InventoryManagerVolunteer* imv = dynamic_cast<InventoryManagerVolunteer*>(volunteer)){
+                if(imv->isBusy()){
+                    imv->step();
+                }
+                else{
+                    int cReq = imv->getCompletedRequestId();
+                    SupplyRequest request = getRequest(cReq);
+                    addRequest(&request);
+            }
+        }
+        
+
+    }
+    }
+}
+
+//Check the beneficiary id input
+bool MedicalWareHouse::BeneficiaryCheck(int beneId){
+    if(Beneficiaries.empty()){
+        throw std::runtime_error("there is no Beneficiaries");
+    }
+    else{
+        for(Beneficiary* beneficiary : Beneficiaries){
+            if(beneficiary->getId() == beneId){
+                if(beneficiary->canMakeRequest()){
+                    beneficiaryCounter++;
+                    return true;
+                }
+                else{
+                    throw std::runtime_error("Cant place this request");
+                }
+
+            }
+        }
+        throw std::runtime_error("there is no Beneficiary with this id");
+    }
+}
+
+//Get the number of Beneficiaries
+int MedicalWareHouse::getBeneficiaryCounter(){
+    return beneficiaryCounter;
+}
+
+//Add a new Beneficiary
+void MedicalWareHouse::addBeneficiary(Beneficiary* beneficiary){
+    Beneficiaries.push_back(beneficiary);
+    beneficiaryCounter++;   
+}
+
+
+
+
 // Close the warehouse
-void MedicalWareHouse::close() {
+void MedicalWareHouse::close(){
     isOpen = false;
 }
 // Open the warehouse
