@@ -88,9 +88,39 @@ bool InventoryManagerVolunteer::decreaseCoolDown() {
 
 //Check if the InventoryManagerVolunteer has requests left
 bool InventoryManagerVolunteer::hasRequestsLeft() const {
-    
+    return activeRequestId!=NO_REQUEST;
+
 }
     
+
+//Check if the InventoryManagerVolunteer can take the request
+bool InventoryManagerVolunteer::canTakeRequest(const SupplyRequest &request) const {
+    return !isBusy();   
+}
+
+// Inventory Manager accepts the request
+void InventoryManagerVolunteer::acceptRequest(const SupplyRequest &request) {
+    if (isBusy())
+    {
+        throw std::runtime_error("Volunteer is busy");
+    }
+    activeRequestId = request.getId();
+    timeLeft = coolDown;
+}
+
+//Convert the InventoryManagerVolunteer to string
+string InventoryManagerVolunteer::toString() const{
+    return "Inventory Manager Volunteer " 
+    + getName() + "with ID " 
+    + std::to_string(getId()) 
+    + "has cool down time of: "
+    +std::to_string(coolDown)
+    + "and time left: " 
+    +std::to_string(timeLeft);
+}
+
+
+
 
 
 
