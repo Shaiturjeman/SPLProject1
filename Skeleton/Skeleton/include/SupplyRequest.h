@@ -27,6 +27,7 @@ class SupplyRequest {
         int getCourierId() const;
         RequestStatus getStatus() const;
         const string toString() const;
+        int getDistance() const;
 
         //Copy constructor
         SupplyRequest(const SupplyRequest& other);

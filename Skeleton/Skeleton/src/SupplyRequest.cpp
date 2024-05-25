@@ -27,7 +27,10 @@ SupplyRequest::SupplyRequest(int id, int benficiaryId, int distance)
 
 // Copy constructor
 SupplyRequest::SupplyRequest(const SupplyRequest &other)   
-    : id(other.id), beneficiaryId(other.beneficiaryId), distance(other.distance), status(other.status), inventoryManagerId(other.inventoryManagerId), CourierId(other.CourierId){
+    : id(other.id), beneficiaryId(other.beneficiaryId), 
+    distance(other.distance), status(other.status),
+     inventoryManagerId(other.inventoryManagerId), 
+     CourierId(other.CourierId){
 
     }
 
@@ -51,11 +54,13 @@ void SupplyRequest::setStatus(RequestStatus status){
 // Set the ID of the Inventory Manager assignd to the SupplyRequest
 void SupplyRequest::setInventoryManagerId(int inventoryManagerId){
     inventoryManagerId = inventoryManagerId;
+    setStatus(RequestStatus::COLLECTING);
 }
 
 // Set the Id of the Courier assigned to the SupplyRequest
 void SupplyRequest::setCourierId(int CourierId){
     CourierId = CourierId;
+    setStatus(RequestStatus::ON_THE_WAY);
 }
 
 // Get the ID of the Inventory Manager assigned to the SupplyRequest
@@ -71,6 +76,10 @@ int SupplyRequest::getCourierId() const{
 // Get the status of the SupplyRequest
 RequestStatus SupplyRequest::getStatus() const{
     return status;
+}
+
+int SupplyRequest::getDistance() const{
+    return distance;
 }
 
 // Convert the SupplyRequest to a string
