@@ -9,35 +9,55 @@
 
 using namespace std;
 
-Volunteer::Volunteer(int id, const string &name):id(id) , name(name) , activeRequestId(NO_REQUEST) , completedRequestId(NO_REQUEST) {}
-
-int Volunteer::getId() const{
-    return id;
+// Constructor implementation
+Volunteer::Volunteer(int id, const string &name):id(id) , name(name) {
+    if(id<0){
+        throw std::runtime_error("id must be positive");
+    }
+    activeRequestId = NO_REQUEST;
+    completedRequestId = NO_REQUEST;
 }
 
+//get the ID of the Volunteer
+int Volunteer::getId() const{
+    return id;
+}  
+
+//get the name of the Volunteer
 const string& Volunteer::getName() const {
     return name;
 }
 
+//get the active request ID of the Volunteer
 int Volunteer::getActiveRequestId() const {
     return activeRequestId;
 }
 
+//get the completed request ID of the Volunteer
 int Volunteer::getCompletedRequestId() const {
     return completedRequestId;
 }
 
+//check if the Volunteer is busy
 bool Volunteer::isBusy() const {
     int busy = getActiveRequestId();
     return busy!=NO_REQUEST;
 }
 
-InventoryManagerVolunteer::InventoryManagerVolunteer(int id, const string &name , int coolDown): Volunteer(id , name) , coolDown(coolDown) {}
 
+//InventoryManagerVolunteer constructor
+InventoryManagerVolunteer::InventoryManagerVolunteer(int id, const string &name , int coolDown):
+     Volunteer(id , name) , coolDown(coolDown) {
+        timeLeft = coolDown;
+     }
+
+
+//Clone the InventoryManagerVolunteer
 InventoryManagerVolunteer * InventoryManagerVolunteer::clone() const { 
     return new InventoryManagerVolunteer(*this);
 }
 
+//Check if the InventoryManagerVolunteer can take the request
 void InventoryManagerVolunteer::step() {
     if (!isBusy())
     {
@@ -46,19 +66,27 @@ void InventoryManagerVolunteer::step() {
     }
 }
 
+//Get the coolDown of the InventoryManagerVolunteer
 int InventoryManagerVolunteer::getCoolDown() const {
     return coolDown;
 }
 
+// Get the time left of the InventoryManagerVolunteer
 int InventoryManagerVolunteer::getTimeLeft() const {
     return timeLeft;
 }
 
+
+//Decrease the time left of the InventoryManagerVolunteer
 bool InventoryManagerVolunteer::decreaseCoolDown() {
-    timeLeft--;
+    if(timeLeft>0){
+        timeLeft--;
+    }
     return timeLeft==0;
 }
 
+
+//Check if the InventoryManagerVolunteer has requests left
 bool InventoryManagerVolunteer::hasRequestsLeft() const {
     
 }
