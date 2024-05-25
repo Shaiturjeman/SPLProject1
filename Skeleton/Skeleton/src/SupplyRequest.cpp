@@ -82,13 +82,31 @@ int SupplyRequest::getDistance() const{
     return distance;
 }
 
+string SupplyRequest::statusToString(RequestStatus status) const{
+    switch (status) {
+        case RequestStatus::PENDING:
+            return "PENDING";
+        case RequestStatus::COLLECTING:
+            return "COLLECTING";
+        case RequestStatus::ON_THE_WAY:
+            return "ON_THE_WAY";
+        case RequestStatus::DONE:
+            return "DONE";
+        default:
+            return "PENDING";
+    }
+}
+
+
+
 // Convert the SupplyRequest to a string
 const std::string SupplyRequest::toString() const{
-    return "SupplyRequest status is:" + std::to_string(static_cast<int>(status)) + " and the Id of the inventory manager is: " 
-    + std::to_string(inventoryManagerId) 
-    + " and the Id of the Courier is: " 
-    + std::to_string(CourierId) 
-    + "and the Beneficiary Id is: "  + std::to_string(beneficiaryId);
+    return "Request ID: " + std::to_string(id) + "\n"
+            + "Status: " + statusToString(status) + "\n"
+            + "Beneficiary ID: " + std::to_string(beneficiaryId) + "\n"
+            + "Inventory Manager: " + std::to_string(inventoryManagerId) + "\n"
+            + "Courier: " + std::to_string(CourierId) + "\n";
+        
 
 }
 

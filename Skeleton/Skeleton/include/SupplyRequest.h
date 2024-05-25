@@ -28,6 +28,8 @@ class SupplyRequest {
         RequestStatus getStatus() const;
         const string toString() const;
         int getDistance() const;
+        string statusToString(RequestStatus) const;
+        
 
         //Copy constructor
         SupplyRequest(const SupplyRequest& other);
