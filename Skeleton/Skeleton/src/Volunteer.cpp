@@ -40,8 +40,7 @@ int Volunteer::getCompletedRequestId() const {
 
 //check if the Volunteer is busy.
 bool Volunteer::isBusy() const {
-    int busy = getActiveRequestId();
-    return busy!=NO_REQUEST;
+    return activeRequestId!=NO_REQUEST;
 }
 
 
@@ -56,7 +55,7 @@ InventoryManagerVolunteer * InventoryManagerVolunteer::clone() const {
     return new InventoryManagerVolunteer(*this);
 }
 
-//Check if the InventoryManagerVolunteer can take the request.
+// Simulate Volunteer step.
 void InventoryManagerVolunteer::step() {
     if (!isBusy())
     {
@@ -87,6 +86,8 @@ bool InventoryManagerVolunteer::decreaseCoolDown() {
     }
     if (timeLeft==0)
     {
+        completedRequestId = activeRequestId;
+        activeRequestId = NO_REQUEST;
         timeLeft = NO_REQUEST;
         return true;
     }
@@ -102,14 +103,14 @@ bool InventoryManagerVolunteer::hasRequestsLeft() const {
 
 //Check if the InventoryManagerVolunteer can take the request.
 bool InventoryManagerVolunteer::canTakeRequest(const SupplyRequest &request) const {
-    
+    return !isBusy();
 }
 
 // Inventory Manager accepts the request.
 void InventoryManagerVolunteer::acceptRequest(const SupplyRequest &request) {
-    if (isBusy())
+    if (!canTakeRequest)
     {
-        throw std::runtime_error("Volunteer is busy");
+        throw std::runtime_error("Volunteer can't take this request at this moment!");
     }
     activeRequestId = request.getId();
     timeLeft = coolDown;
@@ -120,10 +121,12 @@ string InventoryManagerVolunteer::toString() const{
     return "Inventory Manager Volunteer: " 
     + getName() + ", ID: " 
     + std::to_string(getId()) 
-    + "has cool down time of: "
-    +std::to_string(coolDown)
-    + "and time left: " 
-    +std::to_string(timeLeft);
+    + ", has cool down time of: "
+    + std::to_string(coolDown)
+    + "and " 
+    + std::to_string(timeLeft)
+    + " time left to complete request number "
+    + std::to_string(activeRequestId);
 }
 
 //CourierVolunteer constructor.
@@ -161,6 +164,8 @@ bool CourierVolunteer::decreaseDistanceLeft() {
     distanceLeft -= distancePerStep;
     if (distanceLeft<=0)
     {
+        completedRequestId = activeRequestId;
+        activeRequestId = NO_REQUEST;
         distanceLeft = NO_REQUEST;
         return true;
     }
@@ -171,13 +176,44 @@ bool CourierVolunteer::hasRequestLeft() const {
     
 }
 
-//Signal if the volunteer is not busy and the Request is within the maxDistance
+//Signal if the volunteer is not busy and the Request is within the maxDistance.
 bool CourierVolunteer::canTakeRequest(const SupplyRequest &request) const {
-    return !isBusy() && 
+    return (!isBusy() && request.getDistance() <= maxDistance);
 }
 
+//Assign distanceLeft to Request's distance.
 void CourierVolunteer::acceptRequest(const SupplyRequest &request) {
+    if (!canTakeRequest)
+    {
+        throw std::runtime_error ("Volunteer can't take this request at this moment!");
+    }
+    activeRequestId = request.getId();
+    distanceLeft = request.getDistance();
+}
 
+// Decrease distanceLeft by distancePerStep.
+void CourierVolunteer::step() {
+    distanceLeft -= distancePerStep;
+    if (distanceLeft <= 0)
+    {
+        completedRequestId = activeRequestId;
+        activeRequestId = NO_REQUEST;
+        distanceLeft = NO_REQUEST;
+    }
+}
+
+//Convert the Courier Volunteer to string.
+string CourierVolunteer::toString () const { 
+    return "Courier Volunteer: " 
+    + getName() + ", ID: " 
+    + std::to_string(getId()) 
+    + ", can take requests up to a distance of: "
+    + std::to_string(maxDistance)
+    + "and has " 
+    + std::to_string(distanceLeft)
+    + " distance left to complete request number "
+    + std::to_string(activeRequestId)
+    + ".";
 }
 
 
