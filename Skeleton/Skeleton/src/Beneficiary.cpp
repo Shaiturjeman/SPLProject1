@@ -50,7 +50,15 @@ int Beneficiary::getNumRequests() const {
 
 // Check if the Beneficiary can make a new request
 bool Beneficiary::canMakeRequest() const {
-    return requestsId.size() < static_cast<std::vector<int>::size_type>(maxRequests);
+    if(requestsId.empty()){
+        return true;
+    }
+    else if(static_cast<int>(requestsId.size()) < maxRequests){
+        return true;
+    }
+    else{
+        return false;
+    }
 }
 
 // Get the IDs of the requests made by the Beneficiary

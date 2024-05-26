@@ -67,13 +67,13 @@ void SimulateStep::act(MedicalWareHouse &medWareHouse){
 
      int i = 0;  
     while(i < numOfSteps){
-        
         // Finding a Inventory Manager Volunneter and a Supply Request from the Pending Requests
         Volunteer *currVol = medWareHouse.getInventoryManager();
         SupplyRequest *request = medWareHouse.getPendingRequest();
         if(currVol == nullptr || request == nullptr){
             error("No Inventory Manager or Request");
             medWareHouse.addRequest(request);
+            std::cout << "No Inventory Manager or Request" << std::endl;
             return;
         }
     
@@ -177,6 +177,8 @@ void RegisterBeneficiary::act(MedicalWareHouse &medWareHouse){
     else{
         error("Invalid Beneficiary Type");
     }
+    AddRequset* newAction = new AddRequset(id);
+    newAction->act(medWareHouse);
 
 }
 

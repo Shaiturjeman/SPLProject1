@@ -37,20 +37,29 @@ MedicalWareHouse::MedicalWareHouse(const std::string &configFilePath)
             newAction->act(*this);
             CoreAction* newCoreAction = newAction->clone();
             actionsLog.push_back(newCoreAction);
-            beneficiaryCounter++;
+
+
+            //Add Request to the warehouse
+            newCoreAction = new AddRequset(beneficiaryCounter);
+            newCoreAction->act(*this);
+            actionsLog.push_back(newCoreAction);
+            std::cout << "Beneficiary added: " << name << " " << facility_type << " " << location_distance << " " << max_requests << std::endl;
+
+
+
 
         } 
         else if (word == "volunteer") {
-            std::string name, role;
+            std::string name, role, managerRole;
             int param1, param2 = 0;
-            iss >> name >> role >> param1;
+            iss >> name >> role >> managerRole >> param1;
+            if (role + " " + managerRole == "inventory manager") {
+            std::string inventory;
+            iss >> inventory;
             if (role == "inventory") {
-                std::string managerRole;
-                iss >> managerRole;
-                if (managerRole == "manager") {
-                    InventoryManagerVolunteer* volunteer = new InventoryManagerVolunteer(volunteerCounter++, name, param1);
-                    volunteers.push_back(volunteer);
-                    std::cout << "Inventory Manager Volunteer added: " << volunteer->toString() << std::endl;
+                InventoryManagerVolunteer* volunteer = new InventoryManagerVolunteer(volunteerCounter++, name, param1);
+                volunteers.push_back(volunteer);
+                std::cout << "Inventory Manager Volunteer added: " << volunteer->toString() << std::endl;
                 }
             } 
             else if (role == "courier") {
@@ -59,9 +68,17 @@ MedicalWareHouse::MedicalWareHouse(const std::string &configFilePath)
                 volunteers.push_back(volunteer);
                 std::cout << "Courier Volunteer added: " << volunteer->toString() << std::endl;
             }
+            std::cout << "Volunteer added: " << name << " " << role << " " << param1 << " " << param2 << std::endl;
 
         }
+        
+
+
     }
+    CoreAction* newAction = new BackupWareHouse();
+    newAction->act(*this);
+    actionsLog.push_back(newAction);
+    std::cout << "Medical Warehouse created and BackedUp!" << std::endl;
 }
 
 //Copy Constructor
@@ -167,6 +184,7 @@ void MedicalWareHouse::addRequest(SupplyRequest* request) {
     }
     else if(request->getStatus() == RequestStatus::PENDING){
         pendingRequests.push_back(request);
+        std::cout << "Request added: " << request->getId() << std::endl;
     }
     else if(request->getStatus() == RequestStatus::COLLECTING
      || request->getStatus() == RequestStatus::ON_THE_WAY){
@@ -326,9 +344,13 @@ void MedicalWareHouse::stepInc(){
                     cv->step();
                 }
                 else{
-                    int cReq = cv->getCompletedRequestId();
-                    SupplyRequest request = getRequest(cReq);
-                    addRequest(&request);   
+                    if(cv->getCompletedRequestId() != -1){
+                        int cReq = cv->getCompletedRequestId();
+                        SupplyRequest request = getRequest(cReq);
+                        addRequest(&request);   
+                    }
+
+
                 }
             }
             else if(InventoryManagerVolunteer* imv = dynamic_cast<InventoryManagerVolunteer*>(volunteer)){
@@ -336,9 +358,11 @@ void MedicalWareHouse::stepInc(){
                     imv->step();
                 }
                 else{
-                    int cReq = imv->getCompletedRequestId();
-                    SupplyRequest request = getRequest(cReq);
-                    addRequest(&request);
+                    if(imv->getCompletedRequestId() != -1){
+                        int cReq = imv->getCompletedRequestId();
+                        SupplyRequest request = getRequest(cReq);
+                        addRequest(&request);
+                    }
             }
         }
         
@@ -356,7 +380,6 @@ bool MedicalWareHouse::BeneficiaryCheck(int beneId){
         for(Beneficiary* beneficiary : Beneficiaries){
             if(beneficiary->getId() == beneId){
                 if(beneficiary->canMakeRequest()){
-                    beneficiaryCounter++;
                     return true;
                 }
                 else{
@@ -365,13 +388,18 @@ bool MedicalWareHouse::BeneficiaryCheck(int beneId){
 
             }
         }
-        throw std::runtime_error("there is no Beneficiary with this id");
     }
+    return false;
 }
 
 //Get the number of Beneficiaries
 int MedicalWareHouse::getBeneficiaryCounter(){
     return beneficiaryCounter;
+}
+
+//Get the number of Volunteers
+int MedicalWareHouse::getVolunteerCounter(){
+    return volunteerCounter;
 }
 
 //Add a new Beneficiary
@@ -380,6 +408,12 @@ void MedicalWareHouse::addBeneficiary(Beneficiary* beneficiary){
     beneficiaryCounter++;   
 }
 
+
+//add a new Volunteer
+void MedicalWareHouse::addVolunteer(Volunteer* volunteer){
+    volunteers.push_back(volunteer);
+    volunteerCounter++;
+}
 
 
 
@@ -401,6 +435,11 @@ void MedicalWareHouse::close(){
 // Open the warehouse
 void MedicalWareHouse::open() {
     isOpen = true;  
+}
+
+// Check if the warehouse is open
+bool MedicalWareHouse::isOpened() const {
+    return isOpen;
 }
 
 // Destructor implementation
