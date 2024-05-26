@@ -10,7 +10,7 @@ enum class ActionStatus{
 };
 
 enum class beneficiaryType{
-    Soldier, Civilian
+    Hospital, Clinic
 };
 
 
@@ -21,6 +21,9 @@ class CoreAction{
         virtual void act(MedicalWareHouse & medWareHouse)=0;
         virtual string toString() const=0;
         virtual CoreAction* clone() const=0;
+        //Destructor
+        virtual ~CoreAction();
+
 
     protected:
         void complete();

@@ -8,7 +8,7 @@
 #include <stdexcept>
 
 // Constructor implementation
-SupplyRequest::SupplyRequest(int id, int benficiaryId, int distance) 
+SupplyRequest::SupplyRequest(int id, int beneficiaryId, int distance) 
     : id(id), beneficiaryId(beneficiaryId), distance(distance){
         if(id<0){
             throw std::runtime_error("id must be posistive");

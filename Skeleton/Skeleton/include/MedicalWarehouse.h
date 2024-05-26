@@ -34,6 +34,9 @@ class MedicalWareHouse {
         void addBeneficiary(Beneficiary* beneficiary);
         ~MedicalWareHouse();
 
+        // Copy constructor
+        MedicalWareHouse(const MedicalWareHouse &other);
+
 
     private:
         bool isOpen;

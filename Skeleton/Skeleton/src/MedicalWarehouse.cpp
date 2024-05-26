@@ -26,11 +26,11 @@ MedicalWareHouse::MedicalWareHouse(const std::string &configFilePath)
 MedicalWareHouse::MedicalWareHouse(const MedicalWareHouse &other) 
     : isOpen(other.isOpen), beneficiaryCounter(other.beneficiaryCounter), volunteerCounter(other.volunteerCounter){
     for(Beneficiary* beneficiary : other.Beneficiaries){
-        Beneficiary* newBeneficiary = newBeneficiary->clone();
+        Beneficiary* newBeneficiary = beneficiary->clone();
         Beneficiaries.push_back(newBeneficiary);
     }
     for(Volunteer* volunteer : other.volunteers){
-        Volunteer* newVolunteer = newVolunteer->clone();
+        Volunteer* newVolunteer = volunteer->clone();
         volunteers.push_back(newVolunteer);
     }
     for(SupplyRequest* request : other.pendingRequests){
@@ -46,7 +46,7 @@ MedicalWareHouse::MedicalWareHouse(const MedicalWareHouse &other)
         completedRequests.push_back(newRequest);
     }
     for(CoreAction* action : other.actionsLog){
-        CoreAction* newAction = newAction->clone();
+        CoreAction* newAction = action->clone();
         actionsLog.push_back(newAction);
     }
 }

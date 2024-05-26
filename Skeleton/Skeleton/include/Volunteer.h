@@ -23,6 +23,9 @@ class Volunteer {
         virtual string toString() const = 0;
         virtual Volunteer* clone() const = 0; //Return a copy of the volunteer
 
+        //Destructor
+        virtual ~Volunteer();
+
     protected:
         int completedRequestId; //Initialized to NO_Request if no Request has been completed yet
         int activeRequestId; //Initialized to NO_Request if no Request is being processed
@@ -47,6 +50,9 @@ class InventoryManagerVolunteer: public Volunteer {
         bool canTakeRequest(const SupplyRequest &request) const override;
         void acceptRequest(const SupplyRequest &request) override;
         string toString() const override;
+
+        //Destructor
+        ~InventoryManagerVolunteer() override;
     
     private:
         const int coolDown; // The time it takes the volunteer to process a Request
@@ -69,6 +75,9 @@ class CourierVolunteer: public Volunteer {
         void acceptRequest(const SupplyRequest &request) override; // Assign distanceLeft to Request's distance
         void step() override; // Decrease distanceLeft by distancePerStep
         string toString() const override;
+
+        //Destructor
+        ~CourierVolunteer() override;
 
     private:
         const int maxDistance; // The maximum distance of ANY Request the volunteer can take

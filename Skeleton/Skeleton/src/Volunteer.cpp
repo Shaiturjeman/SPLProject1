@@ -98,17 +98,18 @@ bool InventoryManagerVolunteer::decreaseCoolDown() {
 
 //Check if the InventoryManagerVolunteer has requests left.
 bool InventoryManagerVolunteer::hasRequestsLeft() const {
+    return activeRequestId != NO_REQUEST;
 
 }
 
 //Check if the InventoryManagerVolunteer can take the request.
 bool InventoryManagerVolunteer::canTakeRequest(const SupplyRequest &request) const {
-    return !isBusy();
+    return (!isBusy() &&  timeLeft == NO_REQUEST && request.getStatus() == RequestStatus::PENDING);
 }
 
 // Inventory Manager accepts the request.
 void InventoryManagerVolunteer::acceptRequest(const SupplyRequest &request) {
-    if (!canTakeRequest)
+    if (!canTakeRequest(request))
     {
         throw std::runtime_error("Volunteer can't take this request at this moment!");
     }
@@ -122,6 +123,11 @@ string InventoryManagerVolunteer::toString() const{
     + getName()
     + "inventory manager"
     + std::to_string(coolDown);
+}
+
+//InventoryManagerVolunteer destructor.
+InventoryManagerVolunteer::~InventoryManagerVolunteer() {
+    delete this;
 }
 
 //CourierVolunteer constructor.
@@ -167,8 +173,8 @@ bool CourierVolunteer::decreaseDistanceLeft() {
     return false;
 }
 
-bool CourierVolunteer::hasRequestLeft() const {
-    
+bool CourierVolunteer::hasRequestsLeft() const {
+    return activeRequestId != NO_REQUEST;
 }
 
 //Signal if the volunteer is not busy and the Request is within the maxDistance.
@@ -178,7 +184,7 @@ bool CourierVolunteer::canTakeRequest(const SupplyRequest &request) const {
 
 //Assign distanceLeft to Request's distance.
 void CourierVolunteer::acceptRequest(const SupplyRequest &request) {
-    if (!canTakeRequest)
+    if (!canTakeRequest(request))
     {
         throw std::runtime_error ("Volunteer can't take this request at this moment!");
     }
@@ -204,6 +210,11 @@ string CourierVolunteer::toString () const {
     + " courier "
     + std::to_string(maxDistance)
     + std::to_string(distancePerStep);
+}
+
+//CourierVolunteer destructor.
+CourierVolunteer::~CourierVolunteer() {
+    delete this;
 }
 
 

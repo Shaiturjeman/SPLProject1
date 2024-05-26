@@ -54,17 +54,6 @@ void SimulateStep::act(MedicalWareHouse &medWareHouse){
             medWareHouse.addRequest(request);
             return;
         }
-
-    
-
-        // Finding a Inventory Manager Volunneter and a Supply Request from the Pending Requests
-        Volunteer *currVol = medWareHouse.getInventoryManager();
-        SupplyRequest *request = medWareHouse.getPendingRequest();
-        if(currVol == nullptr || request == nullptr){
-            error("No Inventory Manager or Request");
-            medWareHouse.addRequest(request);
-            return;
-        }
     
         while (true) 
         {
@@ -119,10 +108,10 @@ AddRequset::AddRequset(int id) : beneficiaryId(id) {
 }
 
 //Make the Action in the Medical Warehouse
-void AddRequest::act(MedicalWareHouse &medWareHouse){
+void AddRequset::act(MedicalWareHouse &medWareHouse){
     if(medWareHouse.BeneficiaryCheck(beneficiaryId)){
-        Beneficiary ben = medWareHouse.getBeneficiary(beneficiaryId);
-        SupplyRequest request = new SupplyRequest(medWareHouse.beneficiaryCounter(),ben.getId(), ben.getDistance());
+        Beneficiary& ben = medWareHouse.getBeneficiary(beneficiaryId);
+        SupplyRequest* request = new SupplyRequest(beneficiaryId,ben.getId(), ben.getBeneficiaryDistance());
         medWareHouse.addRequest(request);
         std::cout << "The request is initilized with a Pending status and added to the Pending request list in the warehouse" << std::endl;
     }
@@ -141,18 +130,24 @@ string AddRequset::toString() const {
 
 //RegisterBeneficiary Constructor
 RegisterBeneficiary::RegisterBeneficiary(const string &beneficiaryName, const string &beneficiaryType, int distance, int maxRequests) 
-    : beneficiaryName(beneficiaryName), beneficiaryType(beneficiaryType), distance(distance), maxRequests(maxRequests) {
+    : beneficiaryName(beneficiaryName),
+     beneficiaryType(beneficiaryType == "Hospital" ? beneficiaryType::Hospital : beneficiaryType::Clinic)
+    ,distance(distance)
+    , maxRequests(maxRequests) {
+
+        
 }
+
 
 //Register the Beneficiary in the Medical Warehouse
 void RegisterBeneficiary::act(MedicalWareHouse &medWareHouse){
     int id = medWareHouse.getBeneficiaryCounter();
-    if(beneficiaryType == "HospitalBeneficiary"){
+    if(beneficiaryType == ::beneficiaryType::Hospital){
         HospitalBeneficiary *ben = new HospitalBeneficiary(id, beneficiaryName, distance, maxRequests);
         medWareHouse.addBeneficiary(ben);
         std::cout << "The Hospital Beneficiary is added to the Beneficiary list in the warehouse" << std::endl;
     }
-    else if(beneficiaryType == "ClinicBeneficiary"){
+    else if(beneficiaryType == ::beneficiaryType::Clinic){
         ClinicBeneficiary *ben = new ClinicBeneficiary(id, beneficiaryName, distance, maxRequests);
         medWareHouse.addBeneficiary(ben);
         std::cout << "The Clinic Beneficiary is added to the Beneficiary list in the warehouse" << std::endl;

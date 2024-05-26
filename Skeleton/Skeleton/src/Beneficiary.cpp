@@ -98,7 +98,8 @@ ClinicBeneficiary *ClinicBeneficiary::clone() const {
 
 //Destructor
 Beneficiary::~Beneficiary() {
-    for (int i = 0; i < requestsId.size(); i++) {
+    int size = requestsId.size();
+    for (int i = 0; i < size; i++) {
         requestsId.pop_back();
     }
 }
