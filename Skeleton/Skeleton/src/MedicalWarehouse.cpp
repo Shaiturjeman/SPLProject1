@@ -31,19 +31,16 @@ MedicalWareHouse::MedicalWareHouse(const std::string &configFilePath)
             std::string name, facility_type;
             int location_distance, max_requests;
             iss >> name >> facility_type >> location_distance >> max_requests;
-            // Create a new Beneficiary object and add it to your list of beneficiaries
-            if(facility_type == "Hospital"){
-                AddRequset* newAction = new AddRequset(beneficiaryCounter);
+            //Register a new Beneficiary
+            if(name == "beneficiary"){
+                RegisterBeneficiary* newAction = new RegisterBeneficiary(name, facility_type, location_distance, max_requests);
                 newAction->act(*this);
                 CoreAction* newCoreAction = newAction->clone();
                 actionsLog.push_back(newCoreAction);
 
+            }
 
-            }
-            else if(facility_type == "Clinic"){
-                Beneficiary* newBeneficiary = new Clinic(beneficiaryCounter, name, location_distance, max_requests);
-                Beneficiaries.push_back(newBeneficiary);
-            }
+            
         } else if (word == "volunteer") {
             std::string name, role;
             int param1, param2 = 0;
