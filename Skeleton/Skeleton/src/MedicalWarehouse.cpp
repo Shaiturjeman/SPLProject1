@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <vector>
 #include <iostream>
+#include <sstream> 
 
 using namespace std;
 
@@ -20,6 +21,41 @@ MedicalWareHouse::MedicalWareHouse(const std::string &configFilePath)
         throw std::runtime_error("Unable to open config file: " + configFilePath);
     }
     // Parse the configuration file and initialize warehouse data
+    std::string line;
+   while (std::getline(configFile, line)) {
+        std::istringstream iss(line);
+        std::string word;
+        iss >> word;
+
+        if (word == "beneficiary") {
+            std::string name, facility_type;
+            int location_distance, max_requests;
+            iss >> name >> facility_type >> location_distance >> max_requests;
+            // Create a new Beneficiary object and add it to your list of beneficiaries
+            if(facility_type == "Hospital"){
+                AddRequset* newAction = new AddRequset(beneficiaryCounter);
+                newAction->act(*this);
+                CoreAction* newCoreAction = newAction->clone();
+                actionsLog.push_back(newCoreAction);
+
+
+            }
+            else if(facility_type == "Clinic"){
+                Beneficiary* newBeneficiary = new Clinic(beneficiaryCounter, name, location_distance, max_requests);
+                Beneficiaries.push_back(newBeneficiary);
+            }
+        } else if (word == "volunteer") {
+            std::string name, role;
+            int param1, param2 = 0;
+            iss >> name >> role >> param1;
+            if (role == "inventory") {
+                // Create a new InventoryManager object with cooldown = param1
+            } else if (role == "courier") {
+                iss >> param2;
+                // Create a new Courier object with maxDistance = param1 and distance_per_step = param2
+            }
+        }
+    }
 }
 
 //Copy Constructor
