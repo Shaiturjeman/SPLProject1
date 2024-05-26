@@ -116,9 +116,6 @@ MedicalWareHouse& MedicalWareHouse::operator=(const MedicalWareHouse &other){
     if(this == &other){
         return *this;
     }
-    for(Beneficiary* beneficiary : Beneficiaries){
-        delete beneficiary;
-    }
     for(Volunteer* volunteer : volunteers){
         delete volunteer;
     }
@@ -459,9 +456,8 @@ MedicalWareHouse::~MedicalWareHouse() {
     for (SupplyRequest* request : completedRequests) {
         delete request;
     }
-    for (Beneficiary* beneficiary : Beneficiaries) {
-        delete beneficiary;
-    }
+
+    delete this;
 }
 
 

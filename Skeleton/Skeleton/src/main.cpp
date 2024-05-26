@@ -154,6 +154,11 @@ int main(int argc, char** argv){
             else {
                 cout << "Unknown command: " << cmd << endl;
             }
+
+            //Clean the memory
+            std::cout << "Cleaning memory" << std::endl;
+            backup->~MedicalWareHouse();
+            
         
     	delete backup;
     	backup = nullptr;

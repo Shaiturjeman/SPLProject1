@@ -25,8 +25,7 @@ class Beneficiary {
         Beneficiary(const Beneficiary& other);
 
 
-        //Destructor
-        virtual ~Beneficiary();     
+  
         
 
 

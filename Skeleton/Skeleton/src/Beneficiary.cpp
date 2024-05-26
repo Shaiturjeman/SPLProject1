@@ -92,6 +92,8 @@ HospitalBeneficiary *HospitalBeneficiary::clone() const {
     return new HospitalBeneficiary(*this);
 }
 
+
+
 // ClinicBeneficiary Constructor implementation
 ClinicBeneficiary::ClinicBeneficiary(int id, const string &name, int locationDistance, int maxRequests) 
     : Beneficiary(id, name, locationDistance, maxRequests){
@@ -104,13 +106,6 @@ ClinicBeneficiary *ClinicBeneficiary::clone() const {
 
 }
 
-//Destructor
-Beneficiary::~Beneficiary() {
-    int size = requestsId.size();
-    for (int i = 0; i < size; i++) {
-        requestsId.pop_back();
-    }
-}
 
 
 
