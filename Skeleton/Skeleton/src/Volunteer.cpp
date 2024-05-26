@@ -124,11 +124,17 @@ void InventoryManagerVolunteer::acceptRequest(const SupplyRequest &request) {
 
 //Convert the InventoryManagerVolunteer into a string.
 string InventoryManagerVolunteer::toString() const{
-    return "volunteer " 
-    + getName()
-    + "inventory manager"
-    + std::to_string(coolDown);
-}
+    return "Volunteer ID: " + std::to_string(getId()) + "\n"
+            + "IsBusy " + std::to_string(isBusy()) + "\n" ;
+            if(!isBusy()) std::cout << "RequestID: None"  "\n";
+            else{
+                std::cout << "RequestID: " + std::to_string(getActiveRequestId()) + "\n";}
+            if(timeLeft!=NO_REQUEST)    
+            std::cout << "TimeLeft: " + std::to_string(timeLeft) + "\n";
+            else{
+                std::cout << "TimeLeft: None" << "\n";}
+            std::cout << "RequestLeft ID: " + std::to_string(getActiveRequestId()) << "\n";    
+            }
 
 //InventoryManagerVolunteer destructor.
 InventoryManagerVolunteer::~InventoryManagerVolunteer() {
@@ -210,12 +216,17 @@ void CourierVolunteer::step() {
 
 //Convert the Courier Volunteer into a string.
 string CourierVolunteer::toString () const { 
-    return "volunteer " 
-    + getName()
-    + " courier "
-    + std::to_string(maxDistance)
-    + std::to_string(distancePerStep);
-}
+    return "Volunteer ID: " + std::to_string(getId()) + "\n"
+            + "IsBusy " + std::to_string(isBusy()) + "\n" ;
+            if(!isBusy()) std::cout << "RequestID: None"  "\n";
+            else{
+                std::cout << "RequestID: " + std::to_string(getActiveRequestId()) << "\n";}
+            if(distanceLeft!=NO_REQUEST)    
+            std::cout << "DistanceLeft: " + std::to_string(distanceLeft) + "\n";
+            else{
+                std::cout << "DistanceLeft: None" << "\n";}
+            std::cout << "RequestLeft ID: " + std::to_string(getActiveRequestId()) << "\n";    
+            }
 
 //CourierVolunteer destructor.
 CourierVolunteer::~CourierVolunteer() {

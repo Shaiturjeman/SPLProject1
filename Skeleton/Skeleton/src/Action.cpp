@@ -153,7 +153,7 @@ string AddRequset::toString() const {
 //RegisterBeneficiary Constructor
 RegisterBeneficiary::RegisterBeneficiary(const string &beneficiaryName, const string &beneficiaryType, int distance, int maxRequests) 
     : beneficiaryName(beneficiaryName),
-     beneficiaryType(beneficiaryType == "Hospital" ? beneficiaryType::Hospital : beneficiaryType::Clinic)
+     beneficiaryType(beneficiaryType == "hospital" ? beneficiaryType::Hospital : beneficiaryType::Clinic)
     ,distance(distance)
     , maxRequests(maxRequests) {
 

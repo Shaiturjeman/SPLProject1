@@ -22,7 +22,7 @@ MedicalWareHouse::MedicalWareHouse(const std::string &configFilePath)
     }
     // Parse the configuration file and initialize warehouse data
     std::string line;
-   while (std::getline(configFile, line)) {
+     while (std::getline(configFile, line)) {
         std::istringstream iss(line);
         std::string word;
         iss >> word;
@@ -37,6 +37,7 @@ MedicalWareHouse::MedicalWareHouse(const std::string &configFilePath)
             newAction->act(*this);
             CoreAction* newCoreAction = newAction->clone();
             actionsLog.push_back(newCoreAction);
+            beneficiaryCounter++;
 
         } 
         else if (word == "volunteer") {
@@ -49,13 +50,16 @@ MedicalWareHouse::MedicalWareHouse(const std::string &configFilePath)
                 if (managerRole == "manager") {
                     InventoryManagerVolunteer* volunteer = new InventoryManagerVolunteer(volunteerCounter++, name, param1);
                     volunteers.push_back(volunteer);
+                    std::cout << "Inventory Manager Volunteer added: " << volunteer->toString() << std::endl;
                 }
             } 
             else if (role == "courier") {
                 iss >> param2;
                 CourierVolunteer* volunteer = new CourierVolunteer(volunteerCounter++, name, param1, param2);
                 volunteers.push_back(volunteer);
+                std::cout << "Courier Volunteer added: " << volunteer->toString() << std::endl;
             }
+
         }
     }
 }
