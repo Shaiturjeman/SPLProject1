@@ -3,7 +3,7 @@
 
 using namespace std;
 
-MedicalWareHouse * backup = nullptr;
+MedicalWareHouse* backup = nullptr;
 
 int main(int argc, char** argv){
     if(argc!=2){

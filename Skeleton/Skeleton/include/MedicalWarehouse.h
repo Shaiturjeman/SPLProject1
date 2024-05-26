@@ -32,6 +32,7 @@ class MedicalWareHouse {
         bool BeneficiaryCheck(int beneId);
         int getBeneficiaryCounter();
         void addBeneficiary(Beneficiary* beneficiary);
+        ~MedicalWareHouse();
 
 
     private:

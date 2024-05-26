@@ -129,6 +129,8 @@ class BackupWareHouse : public CoreAction {
     private:
 };
 
+extern MedicalWareHouse *backup;
+
 
 class RestoreWareHouse : public CoreAction {
     public:

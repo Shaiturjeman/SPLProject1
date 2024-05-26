@@ -198,8 +198,155 @@ string PrintRequestStatus::toString() const {
 PrintBeneficiaryStatus::PrintBeneficiaryStatus(int BeneficiaryId) : beneficiaryId(BeneficiaryId) {
 }
 
+
 //Print the Beneficiary Status in the Medical Warehouse
 void PrintBeneficiaryStatus::act(MedicalWareHouse &medWareHouse){
-    Beneficiary ben = medWareHouse.getBeneficiary(beneficiaryId);
-    std::cout << ben.toString() << std::endl;
-}
+    Beneficiary& ben = medWareHouse.getBeneficiary(beneficiaryId);
+    std::cout << "Beneficiary ID: " + std::to_string(ben.getId()) + "\n"
+            + "Request Id: "  << std::endl;
+            for(int i : ben.getRequestsIds()){
+                std::cout << i << " " << "\n" << std::endl;
+            }
+    std::cout << "Status: " << std::endl;
+            for (int i : ben.getRequestsIds()){
+                SupplyRequest request = medWareHouse.getRequest(i);
+                std::cout << request.statusToString(request.getStatus()) << "\n" << std::endl;
+            }
+    std::cout << "Requst Left: " << ben.getMaxRequests() - ben.getNumRequests() << std::endl;
+    }
+
+    //Clone the PrintBeneficiaryStatus
+    PrintBeneficiaryStatus *PrintBeneficiaryStatus::clone() const {
+        return new PrintBeneficiaryStatus(*this);
+    }
+
+    //Convert the PrintBeneficiaryStatus to a string
+    string PrintBeneficiaryStatus::toString() const {
+        return "Print Beneficiary Status " + std::to_string(beneficiaryId);
+    }
+
+    //Print Volunteer Status Constructor
+    PrintVolunteerStatus::PrintVolunteerStatus(int VolunteerId) : volunteerId(VolunteerId) {
+    }
+
+    //Print the Volunteer Status in the Medical Warehouse
+    void PrintVolunteerStatus::act(MedicalWareHouse &medWareHouse){
+        Volunteer& vol = medWareHouse.getVolunteer(volunteerId);
+        std::cout << vol.toString() << std::endl;
+
+    }
+
+
+    //Clone the PrintVolunteerStatus
+    PrintVolunteerStatus *PrintVolunteerStatus::clone() const {
+        return new PrintVolunteerStatus(*this);
+    }
+
+    //Convert the PrintVolunteerStatus to a string
+    string PrintVolunteerStatus::toString() const {
+        return "Print Volunteer Status " + std::to_string(volunteerId);
+    }
+
+    //Print Actions Log Constructor
+    PrintActionsLog::PrintActionsLog() {
+    }
+
+    //Print the Actions Log in the Medical Warehouse
+    void PrintActionsLog::act(MedicalWareHouse &medWareHouse){
+        for(CoreAction* action : medWareHouse.getActions()){
+            std::cout << action->toString() << std::endl;
+        }
+    }
+
+    //Clone the PrintActionsLog
+    PrintActionsLog *PrintActionsLog::clone() const {
+        return new PrintActionsLog(*this);
+    }
+
+    //Convert the PrintActionsLog to a string
+    string PrintActionsLog::toString() const {
+        return "Print Actions Log";
+    }
+
+    //Close Constructor
+    Close::Close() {
+    }
+
+    //Close the Medical Warehouse
+    void Close::act(MedicalWareHouse &medWareHouse){
+        medWareHouse.close();
+        std::cout << "Medical Warehouse is now closed!" << std::endl;
+        // delete &medWareHouse;
+        
+        
+        
+    }
+
+    //Clone the Close
+    Close *Close::clone() const {
+        return new Close(*this);
+    }
+
+    //Convert the Close to a string
+    string Close::toString() const {
+        return "Close";
+    }
+
+    //BackupWareHouse Constructor
+    BackupWareHouse::BackupWareHouse() {
+    }
+
+    //Backup the Medical Warehouse
+    void BackupWareHouse::act(MedicalWareHouse &medWareHouse){
+        if (backup != nullptr) {
+            delete backup;  // delete the old backup
+        }
+        backup = new MedicalWareHouse(medWareHouse);  // create a new backup
+        std::cout << this->toString() << std::endl;
+
+    }
+
+    //Clone the BackupWareHouse
+    BackupWareHouse *BackupWareHouse::clone() const {
+        return new BackupWareHouse(*this);
+    }
+
+    //Convert the BackupWareHouse to a string
+    string BackupWareHouse::toString() const {
+        return "Updates the backup with the latest state of the warehouse.";
+    }
+
+
+    //RestoreWareHouse Constructor
+    RestoreWareHouse::RestoreWareHouse() {
+    }
+
+    //Restore the Medical Warehouse
+    void RestoreWareHouse::act(MedicalWareHouse &medWareHouse){
+        if (backup == nullptr) {
+            error("No backup available");
+            return;
+        }
+        medWareHouse = *backup;
+        std::cout << this->toString() << std::endl;
+    }
+
+
+    //Clone the RestoreWareHouse
+    RestoreWareHouse *RestoreWareHouse::clone() const {
+        return new RestoreWareHouse(*this);
+    }
+
+    //Convert the RestoreWareHouse to a string
+    string RestoreWareHouse::toString() const {
+        return "Restore the warehouse to the last backup.";
+    }
+
+
+
+
+   
+   
+            
+
+

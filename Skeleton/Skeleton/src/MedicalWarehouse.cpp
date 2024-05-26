@@ -2,6 +2,7 @@
 #include "Volunteer.h"
 #include "SupplyRequest.h"
 #include "Beneficiary.h"    
+#include "Action.h"
 #include <fstream>
 #include <stdexcept>
 #include <vector>
@@ -19,6 +20,35 @@ MedicalWareHouse::MedicalWareHouse(const std::string &configFilePath)
         throw std::runtime_error("Unable to open config file: " + configFilePath);
     }
     // Parse the configuration file and initialize warehouse data
+}
+
+//Copy Constructor
+MedicalWareHouse::MedicalWareHouse(const MedicalWareHouse &other) 
+    : isOpen(other.isOpen), beneficiaryCounter(other.beneficiaryCounter), volunteerCounter(other.volunteerCounter){
+    for(Beneficiary* beneficiary : other.Beneficiaries){
+        Beneficiary* newBeneficiary = newBeneficiary->clone();
+        Beneficiaries.push_back(newBeneficiary);
+    }
+    for(Volunteer* volunteer : other.volunteers){
+        Volunteer* newVolunteer = newVolunteer->clone();
+        volunteers.push_back(newVolunteer);
+    }
+    for(SupplyRequest* request : other.pendingRequests){
+        SupplyRequest* newRequest = new SupplyRequest(*request);
+        pendingRequests.push_back(newRequest);
+    }
+    for(SupplyRequest* request : other.inProcessRequests){
+        SupplyRequest* newRequest = new SupplyRequest(*request);
+        inProcessRequests.push_back(newRequest);
+    }
+    for(SupplyRequest* request : other.completedRequests){
+        SupplyRequest* newRequest = new SupplyRequest(*request);
+        completedRequests.push_back(newRequest);
+    }
+    for(CoreAction* action : other.actionsLog){
+        CoreAction* newAction = newAction->clone();
+        actionsLog.push_back(newAction);
+    }
 }
 
 // Start the warehouse operations
@@ -54,7 +84,7 @@ void MedicalWareHouse::addAction(CoreAction* action) {
 // Get a Beneficiary by ID
 Beneficiary& MedicalWareHouse::getBeneficiary(int beneficiaryId) const {     
     if(Beneficiaries.empty()){
-        throw std::runtime_error("there is no Beneficiaries");
+        throw std::runtime_error("Beneficiary does not exist.");
     }
     else{
         for(Beneficiary* beneficiary : Beneficiaries){
@@ -253,10 +283,43 @@ void MedicalWareHouse::addBeneficiary(Beneficiary* beneficiary){
 // Close the warehouse
 void MedicalWareHouse::close(){
     isOpen = false;
+    for(SupplyRequest* request : pendingRequests){
+        request->toString();
+    }
+    for(SupplyRequest* request : inProcessRequests){
+        request->toString();
+    }
+    for(SupplyRequest* request : completedRequests){
+        request->toString();
+    }
 }
+
+
 // Open the warehouse
 void MedicalWareHouse::open() {
     isOpen = true;  
+}
+
+// Destructor implementation
+MedicalWareHouse::~MedicalWareHouse() {
+    for (CoreAction* action : actionsLog) {
+        delete action;
+    }
+    for (Volunteer* volunteer : volunteers) {
+        delete volunteer;
+    }
+    for (SupplyRequest* request : pendingRequests) {
+        delete request;
+    }
+    for (SupplyRequest* request : inProcessRequests) {
+        delete request;
+    }
+    for (SupplyRequest* request : completedRequests) {
+        delete request;
+    }
+    for (Beneficiary* beneficiary : Beneficiaries) {
+        delete beneficiary;
+    }
 }
 
 
