@@ -21,6 +21,10 @@ class CoreAction{
         virtual void act(MedicalWareHouse & medWareHouse)=0;
         virtual string toString() const=0;
         virtual CoreAction* clone() const=0;
+        //Copy constructor
+        CoreAction(const CoreAction &other);
+        //Assignment operator
+        CoreAction& operator=(const CoreAction &other);
         //Destructor
         virtual ~CoreAction();
 

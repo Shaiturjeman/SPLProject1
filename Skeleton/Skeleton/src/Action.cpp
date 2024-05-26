@@ -36,6 +36,28 @@ string CoreAction::getErrorMsg() const{
 }
 
 
+//Copy Constructor
+CoreAction::CoreAction(const CoreAction &other) {
+    status = other.status;
+    errorMsg = other.errorMsg;
+}
+
+//Assignment Operator
+CoreAction &CoreAction::operator=(const CoreAction &other) {
+    if (this != &other) {
+        status = other.status;
+        errorMsg = other.errorMsg;
+    }
+    return *this;
+}
+
+//Destructor
+CoreAction::~CoreAction() {
+    delete this;
+}
+
+
+
 //SimulateStep Constructor
 SimulateStep::SimulateStep(int numOfSteps) : numOfSteps(numOfSteps) {
 }

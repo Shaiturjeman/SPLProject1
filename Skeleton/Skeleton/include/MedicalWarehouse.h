@@ -36,6 +36,8 @@ class MedicalWareHouse {
 
         // Copy constructor
         MedicalWareHouse(const MedicalWareHouse &other);
+        // Assignment operator
+        MedicalWareHouse& operator=(const MedicalWareHouse &other);
 
 
     private:

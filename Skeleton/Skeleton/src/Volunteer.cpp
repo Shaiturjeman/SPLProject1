@@ -43,6 +43,11 @@ bool Volunteer::isBusy() const {
     return activeRequestId!=NO_REQUEST;
 }
 
+//Volunteer destructor.
+Volunteer::~Volunteer() {
+    delete this;
+}
+
 
 //InventoryManagerVolunteer constructor.
 InventoryManagerVolunteer::InventoryManagerVolunteer(int id, const string &name , int coolDown):

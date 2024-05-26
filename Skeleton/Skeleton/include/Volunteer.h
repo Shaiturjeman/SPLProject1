@@ -24,7 +24,7 @@ class Volunteer {
         virtual Volunteer* clone() const = 0; //Return a copy of the volunteer
 
         //Destructor
-        virtual ~Volunteer();
+        virtual ~Volunteer()=0;
 
     protected:
         int completedRequestId; //Initialized to NO_Request if no Request has been completed yet

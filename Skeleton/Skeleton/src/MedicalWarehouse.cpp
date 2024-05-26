@@ -51,6 +51,67 @@ MedicalWareHouse::MedicalWareHouse(const MedicalWareHouse &other)
     }
 }
 
+
+// Assignment operator
+MedicalWareHouse& MedicalWareHouse::operator=(const MedicalWareHouse &other){
+    if(this == &other){
+        return *this;
+    }
+    for(Beneficiary* beneficiary : Beneficiaries){
+        delete beneficiary;
+    }
+    for(Volunteer* volunteer : volunteers){
+        delete volunteer;
+    }
+    for(SupplyRequest* request : pendingRequests){
+        delete request;
+    }
+    for(SupplyRequest* request : inProcessRequests){
+        delete request;
+    }
+    for(SupplyRequest* request : completedRequests){
+        delete request;
+    }
+    for(CoreAction* action : actionsLog){
+        delete action;
+    }
+    isOpen = other.isOpen;
+    beneficiaryCounter = other.beneficiaryCounter;
+    volunteerCounter = other.volunteerCounter;
+
+
+    for(Beneficiary* beneficiary : other.Beneficiaries){
+        Beneficiary* newBeneficiary = beneficiary->clone();
+        Beneficiaries.push_back(newBeneficiary);
+    }
+
+    for(Volunteer* volunteer : other.volunteers){
+        Volunteer* newVolunteer = volunteer->clone();
+        volunteers.push_back(newVolunteer);
+    }
+
+    for(SupplyRequest* request : other.pendingRequests){
+        SupplyRequest* newRequest = new SupplyRequest(*request);
+        pendingRequests.push_back(newRequest);
+    }
+
+    for(SupplyRequest* request : other.inProcessRequests){
+        SupplyRequest* newRequest = new SupplyRequest(*request);
+        inProcessRequests.push_back(newRequest);
+    }
+
+    for(SupplyRequest* request : other.completedRequests){
+        SupplyRequest* newRequest = new SupplyRequest(*request);
+        completedRequests.push_back(newRequest);
+    }
+    
+    for(CoreAction* action : other.actionsLog){
+        CoreAction* newAction = action->clone();
+        actionsLog.push_back(newAction);
+    }
+    return *this;
+}
+
 // Start the warehouse operations
 void MedicalWareHouse::start() {
     isOpen = true;
