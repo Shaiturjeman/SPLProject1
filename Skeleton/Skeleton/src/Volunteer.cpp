@@ -116,17 +116,12 @@ void InventoryManagerVolunteer::acceptRequest(const SupplyRequest &request) {
     timeLeft = coolDown;
 }
 
-//Convert the InventoryManagerVolunteer to string.
+//Convert the InventoryManagerVolunteer into a string.
 string InventoryManagerVolunteer::toString() const{
-    return "Inventory Manager Volunteer: " 
-    + getName() + ", ID: " 
-    + std::to_string(getId()) 
-    + ", has cool down time of: "
-    + std::to_string(coolDown)
-    + "and " 
-    + std::to_string(timeLeft)
-    + " time left to complete request number "
-    + std::to_string(activeRequestId);
+    return "volunteer " 
+    + getName()
+    + "inventory manager"
+    + std::to_string(coolDown);
 }
 
 //CourierVolunteer constructor.
@@ -202,18 +197,13 @@ void CourierVolunteer::step() {
     }
 }
 
-//Convert the Courier Volunteer to string.
+//Convert the Courier Volunteer into a string.
 string CourierVolunteer::toString () const { 
-    return "Courier Volunteer: " 
-    + getName() + ", ID: " 
-    + std::to_string(getId()) 
-    + ", can take requests up to a distance of: "
+    return "volunteer " 
+    + getName()
+    + " courier "
     + std::to_string(maxDistance)
-    + "and has " 
-    + std::to_string(distanceLeft)
-    + " distance left to complete request number "
-    + std::to_string(activeRequestId)
-    + ".";
+    + std::to_string(distancePerStep);
 }
 
 
