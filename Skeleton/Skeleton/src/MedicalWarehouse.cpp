@@ -31,25 +31,30 @@ MedicalWareHouse::MedicalWareHouse(const std::string &configFilePath)
             std::string name, facility_type;
             int location_distance, max_requests;
             iss >> name >> facility_type >> location_distance >> max_requests;
-            //Register a new Beneficiary
-            if(name == "beneficiary"){
-                RegisterBeneficiary* newAction = new RegisterBeneficiary(name, facility_type, location_distance, max_requests);
-                newAction->act(*this);
-                CoreAction* newCoreAction = newAction->clone();
-                actionsLog.push_back(newCoreAction);
 
-            }
+            // Register a new Beneficiary
+            RegisterBeneficiary* newAction = new RegisterBeneficiary(name, facility_type, location_distance, max_requests);
+            newAction->act(*this);
+            CoreAction* newCoreAction = newAction->clone();
+            actionsLog.push_back(newCoreAction);
 
-            
-        } else if (word == "volunteer") {
+        } 
+        else if (word == "volunteer") {
             std::string name, role;
             int param1, param2 = 0;
             iss >> name >> role >> param1;
             if (role == "inventory") {
-                // Create a new InventoryManager object with cooldown = param1
-            } else if (role == "courier") {
+                std::string managerRole;
+                iss >> managerRole;
+                if (managerRole == "manager") {
+                    InventoryManagerVolunteer* volunteer = new InventoryManagerVolunteer(volunteerCounter++, name, param1);
+                    volunteers.push_back(volunteer);
+                }
+            } 
+            else if (role == "courier") {
                 iss >> param2;
-                // Create a new Courier object with maxDistance = param1 and distance_per_step = param2
+                CourierVolunteer* volunteer = new CourierVolunteer(volunteerCounter++, name, param1, param2);
+                volunteers.push_back(volunteer);
             }
         }
     }
