@@ -8,6 +8,7 @@
 #include <vector>
 #include <iostream>
 #include <sstream> 
+#include <algorithm>
 
 using namespace std;
 
@@ -181,7 +182,7 @@ void MedicalWareHouse::addRequest(SupplyRequest* request) {
     }
     else if(request->getStatus() == RequestStatus::PENDING){
         pendingRequests.push_back(request);
-        std::cout << "Request added: " << request->getId() << std::endl;
+        
     }
     else if(request->getStatus() == RequestStatus::COLLECTING
      || request->getStatus() == RequestStatus::ON_THE_WAY){
@@ -275,16 +276,22 @@ Volunteer* MedicalWareHouse::getInventoryManager() {
     if(volunteers.empty()){
         throw std::runtime_error("there is no volunteers");
     }
-    else{
-        for(Volunteer* volunteer : volunteers){
-            InventoryManagerVolunteer* imv = dynamic_cast<InventoryManagerVolunteer*>(volunteer);
+     std::vector<Volunteer*>::iterator it = volunteers.begin();
+        while(it != volunteers.end()){
+            InventoryManagerVolunteer* imv = dynamic_cast<InventoryManagerVolunteer*>(*it);
             if((imv != nullptr ) && (imv->isBusy() == false)){
+                Volunteer* volunteer = *it;
+                it = volunteers.erase(it); // remove the volunteer from the vector
+                volunteers.push_back(volunteer); // push him back to the vector
                 return volunteer;
+            }
+            else{
+                ++it;
             }
         }
         return nullptr;
     }
-}
+
 
 // Get the next pending request
 SupplyRequest* MedicalWareHouse::getPendingRequest() {
@@ -303,17 +310,22 @@ Volunteer* MedicalWareHouse::getCourierVolunteer() {
     if(volunteers.empty()){
         throw std::runtime_error("there is no volunteers");
     }
-    else{
-        for(Volunteer* volunteer : volunteers){
-            CourierVolunteer* cv = dynamic_cast<CourierVolunteer*>(volunteer);
-            if((cv != nullptr ) && (cv->isBusy() == false)){
-                return volunteer;
-            }
+    std::vector<Volunteer*>::iterator it = volunteers.begin();
+    while(it != volunteers.end()){
+        CourierVolunteer* cv = dynamic_cast<CourierVolunteer*>(*it);
+        if((cv != nullptr ) && (cv->isBusy() == false)){
+            Volunteer* volunteer = *it;
+            it = volunteers.erase(it); // remove the volunteer from the vector
+            volunteers.push_back(volunteer); // push him back to the vector
+            return volunteer;
         }
-        return nullptr;
+        else{
+            ++it;
+        }
     }
-}
+    return nullptr;
 
+}
 // Get the next collecting request
 SupplyRequest* MedicalWareHouse::getCollectingRequest() {
     if(inProcessRequests.empty()){
@@ -332,39 +344,45 @@ SupplyRequest* MedicalWareHouse::getCollectingRequest() {
     return nullptr;
 }
 
-//Incrememnt the step
-void MedicalWareHouse::stepInc(){
-    if(!(volunteers.empty())){
-        for(Volunteer* volunteer : volunteers){
-            if(CourierVolunteer* cv = dynamic_cast<CourierVolunteer*>(volunteer)){
-                if(cv->isBusy()){
-                    cv->step();
-                }
-                else{
-                    if(cv->getCompletedRequestId() != -1){
-                        int cReq = cv->getCompletedRequestId();
-                        SupplyRequest request = getRequest(cReq);
-                        addRequest(&request);   
+//Check the completed requests
+void MedicalWareHouse::completedRequestsCheck(){
+    if(inProcessRequests.empty()){
+        return;
+    }
+    else{
+        for(Volunteer* vol :volunteers){
+            InventoryManagerVolunteer* invManager = dynamic_cast<InventoryManagerVolunteer*>(vol);
+            CourierVolunteer* courier = dynamic_cast<CourierVolunteer*>(vol);
+
+            if(invManager != nullptr){
+                if(invManager->isBusy() == false && invManager->getCompletedRequestId() != NO_REQUEST){
+                    for(SupplyRequest* request : inProcessRequests){
+                        if(request->getStatus() == RequestStatus::COLLECTING){
+                            CourierVolunteer* courierFree = dynamic_cast<CourierVolunteer*>(getCourierVolunteer());
+                            if(courierFree != nullptr){
+                                request->setCourierId(courierFree->getId());
+                        }
                     }
-
-
                 }
             }
-            else if(InventoryManagerVolunteer* imv = dynamic_cast<InventoryManagerVolunteer*>(volunteer)){
-                if(imv->isBusy()){
-                    imv->step();
-                }
-                else{
-                    if(imv->getCompletedRequestId() != -1){
-                        int cReq = imv->getCompletedRequestId();
-                        SupplyRequest request = getRequest(cReq);
-                        addRequest(&request);
+            }
+            else if(courier != nullptr){
+                if(courier->isBusy() == false && courier->getCompletedRequestId() != NO_REQUEST){
+                    for(SupplyRequest* request : inProcessRequests){
+                        if(request->getStatus() == RequestStatus::ON_THE_WAY){
+                            request->setStatus(RequestStatus::DONE);
+                            completedRequests.push_back(request);
+                            auto it = std::find(inProcessRequests.begin(), inProcessRequests.end(), request);
+                            if (it != inProcessRequests.end()) {
+                                inProcessRequests.erase(it);
+                            }
+                        }
                     }
+                }
+
             }
         }
-        
 
-    }
     }
 }
 
@@ -380,7 +398,7 @@ bool MedicalWareHouse::BeneficiaryCheck(int beneId){
                     return true;
                 }
                 else{
-                    throw std::runtime_error("Cant place this request");
+                    throw std::runtime_error("Cannnot place this request");
                 }
 
             }

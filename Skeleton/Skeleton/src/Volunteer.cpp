@@ -67,6 +67,9 @@ void InventoryManagerVolunteer::step() {
         completedRequestId = activeRequestId;
         activeRequestId = NO_REQUEST;
     }
+    else{
+        decreaseCoolDown();
+    }
 }
 
 //Get the coolDown of the InventoryManagerVolunteer.

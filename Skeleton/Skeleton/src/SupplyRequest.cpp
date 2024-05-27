@@ -104,9 +104,8 @@ const std::string SupplyRequest::toString() const{
     return "Request ID: " + std::to_string(id) + "\n"
             + "Status: " + statusToString(status) + "\n"
             + "Beneficiary ID: " + std::to_string(beneficiaryId) + "\n"
-            + "Inventory Manager: " + std::to_string(inventoryManagerId) + "\n"
-            + "Courier: " + std::to_string(CourierId) + "\n";
-        
+            + "Inventory Manager: " + (inventoryManagerId == NO_VOLUNTEER ? "None" : std::to_string(inventoryManagerId)) + "\n"
+            + "Courier: " + (CourierId == NO_VOLUNTEER ? "None" : std::to_string(CourierId)) + "\n";
 
 }
 

@@ -67,7 +67,7 @@ int main(int argc, char** argv){
             int beneficiaryId;
             iss >> beneficiaryId;
             if (iss.fail() || beneficiaryId < 0 || !backup->BeneficiaryCheck(beneficiaryId)) {
-                cout << "Error: Invalid beneficiary ID" << endl;
+                cout << "Error:Cannnot place this request" << endl;
                     
             }
             else {
@@ -154,10 +154,6 @@ int main(int argc, char** argv){
             else {
                 cout << "Unknown command: " << cmd << endl;
             }
-
-            //Clean the memory
-            std::cout << "Cleaning memory" << std::endl;
-            backup->~MedicalWareHouse();
             
         
     	delete backup;
@@ -165,3 +161,4 @@ int main(int argc, char** argv){
         }
     return 0;
     }
+///workspaces/SPLProject1/Skeleton/Skeleton/bin/my_program /workspaces/SPLProject1/Skeleton/Skeleton/configFileExample.txt
