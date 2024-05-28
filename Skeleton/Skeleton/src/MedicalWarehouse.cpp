@@ -19,7 +19,8 @@ MedicalWareHouse::MedicalWareHouse(const std::string &configFilePath)
     // Load configuration from file, initialize members
     std::ifstream configFile(configFilePath);
     if (!configFile) {
-        throw std::runtime_error("Unable to open config file: " + configFilePath);
+        std::cout << "Erro: Unable to open config file: " << configFilePath << std::endl;
+        return;
     }
     // Parse the configuration file and initialize warehouse data
     std::string line;
@@ -51,26 +52,23 @@ MedicalWareHouse::MedicalWareHouse(const std::string &configFilePath)
 
         } 
         else if (word == "volunteer") {
-            std::string name, role, managerRole;
+            std::string name, role1, role2;
             int param1, param2 = 0;
-            iss >> name >> role >> managerRole >> param1;
-            if (role + " " + managerRole == "inventory manager") {
-            std::string inventory;
-            iss >> inventory;
-            if (role == "inventory") {
-                InventoryManagerVolunteer* volunteer = new InventoryManagerVolunteer(volunteerCounter++, name, param1);
+            iss >> name >> role1 >> role2 >> param1;
+            std::string role = role1 + " " + role2;
+            if (role == "inventory manager") {
+                InventoryManagerVolunteer* volunteer = new InventoryManagerVolunteer(getVolunteerCounter(), name, param1);
                 volunteers.push_back(volunteer);
                 std::cout << "Inventory Manager Volunteer added: " << volunteer->toString() << std::endl;
-                }
             } 
             else if (role == "courier") {
                 iss >> param2;
-                CourierVolunteer* volunteer = new CourierVolunteer(volunteerCounter++, name, param1, param2);
+                CourierVolunteer* volunteer = new CourierVolunteer(getVolunteerCounter(), name, param1, param2);
+                addVolunteer(volunteer);
                 volunteers.push_back(volunteer);
                 std::cout << "Courier Volunteer added: " << volunteer->toString() << std::endl;
             }
             std::cout << "Volunteer added: " << name << " " << role << " " << param1 << " " << param2 << std::endl;
-
         }
         
 
@@ -173,12 +171,150 @@ MedicalWareHouse& MedicalWareHouse::operator=(const MedicalWareHouse &other){
 void MedicalWareHouse::start() {
     isOpen = true;
     std::cout << "Medical Warehouse is now open!" << std::endl;
+    while(isOpen){
+        cout << "Enter a command: ";
+                string command;
+                getline(cin, command);
+                istringstream iss(command);
+                string cmd;
+                iss >> cmd;
+
+                if (cmd == "beneficiary") {
+                std::string name, facility_type;
+                int location_distance, max_requests;
+                iss >> name >> facility_type >> location_distance >> max_requests;
+
+                // Register a new Beneficiary
+                RegisterBeneficiary* newAction = new RegisterBeneficiary(name, facility_type, location_distance, max_requests);
+                newAction->act(*backup);
+                CoreAction* newCoreAction = newAction->clone();
+                backup->addAction(newCoreAction);
+
+            } 
+            else if (cmd == "volunteer") {
+                std::string name, role;
+                int param1, param2 = 0;
+                iss >> name >> role >> param1;
+                if (role == "inventory") {
+                    std::string managerRole;
+                    iss >> managerRole;
+                    if (managerRole == "manager") {
+                        InventoryManagerVolunteer* volunteer = new InventoryManagerVolunteer(getVolunteerCounter() , name, param1);
+                        backup->addVolunteer(volunteer);
+                        std::cout << "Inventory Manager Volunteer added: " << volunteer->toString() << std::endl;
+                    }
+                } 
+                else if (role == "courier") {
+                    iss >> param2;
+                    CourierVolunteer* volunteer = new CourierVolunteer(getVolunteerCounter(), name, param1, param2);
+                    backup->addVolunteer(volunteer);
+                    std::cout << "Courier Volunteer added: " << volunteer->toString() << std::endl;
+                }
+            }
+
+            if (cmd == "request") {
+                int beneficiaryId;
+                iss >> beneficiaryId;
+                if (iss.fail() || beneficiaryId < 0 || !backup->BeneficiaryCheck(beneficiaryId)) {
+                    cout << "Error:Cannnot place this request" << endl;
+                        
+                }
+                else {
+                    CoreAction* action = new AddRequset(beneficiaryId);
+                    addAction(action);
+                    action->act(*this);
+                    
+                    cout << "Request added successfully" << endl;
+                }
+
+            } 
+                else if (cmd == "requestStatus") {
+                    int requestId;
+                    iss >> requestId;
+                    if (iss.fail() || requestId < 0 ) {
+                        cout << "Error: Invalid request ID" << endl;
+
+                    }
+                    else {
+                        CoreAction* action = new PrintRequestStatus(requestId);
+                        cout << "1Request status printed" << endl;
+                        action->act(*this);
+                        cout << "2Request status printed" << endl;
+                        addAction(action);
+                        cout << "3Request status printed" << endl;
+                        }
+
+                    }  
+                else if (cmd == "volunteerStatus") {
+                    int volunteerId;
+                    iss >> volunteerId;
+                    if (iss.fail() || volunteerId < 0) {    
+                        cout << "Error: Invalid volunteer ID" << endl;
+                    }
+                    else {
+                        CoreAction* action = new PrintVolunteerStatus(volunteerId);
+                        action->act(*this);
+                        addAction(action);
+                    } 
+                } 
+                else if (cmd == "beneficiaryStatus") {
+                    int beneficiaryId;
+                    iss >> beneficiaryId;
+                    if (iss.fail() || beneficiaryId < 0 || !backup->BeneficiaryCheck(beneficiaryId)) {
+                    cout << "Error: Invalid beneficiary ID" << endl;
+                    }
+                    else {
+                        CoreAction* action = new PrintBeneficiaryStatus(beneficiaryId);
+                        action->act(*this);
+                        addAction(action);
+                    }
+                }
+                else if(cmd == "step") {
+                    int numOfSteps;
+                    iss >> numOfSteps;
+                    if (iss.fail()) {
+                        cout << "Error: Invalid number of steps" << endl;
+                    }
+                    else {
+                        CoreAction* action = new SimulateStep(numOfSteps);
+                        action->act(*this);
+                        addAction(action);
+                    } 
+                }
+                else if (cmd == "log") {
+                    if (backup->getActions().empty()) {
+                        cout << "No actions have been performed yet" << endl;
+                    }
+                    else {
+                        CoreAction* action = new PrintActionsLog();
+                        action->act(*this);
+                        addAction(action);
+                    }    
+                }
+                else if (cmd == "close") {
+                    if (!isOpen) {
+                        cout << "Medical services are already closed." << endl;
+                    }
+
+                    else{
+                        CoreAction* action = new Close();
+                        action->act(*this);
+                        addAction(action);
+                        cout << "Medical services are now closed." << endl; 
+                    } 
+                        
+                } 
+                else {
+                    cout << "Unknown command: " << cmd << endl;
+                }
+                
+        }
 }
 
 // Add a new supply request
 void MedicalWareHouse::addRequest(SupplyRequest* request) {
     if(request == nullptr){
-        throw std::runtime_error("request is null");
+        std::cout << "Request is null" << std::endl;
     }
     else if(request->getStatus() == RequestStatus::PENDING){
         pendingRequests.push_back(request);
@@ -203,7 +339,9 @@ void MedicalWareHouse::addAction(CoreAction* action) {
 // Get a Beneficiary by ID
 Beneficiary& MedicalWareHouse::getBeneficiary(int beneficiaryId) const {     
     if(Beneficiaries.empty()){
-        throw std::runtime_error("Beneficiary does not exist.");
+        std::cout << "There are no Beneficiaries(Beneficiaries Empty)" << std::endl;;
+        throw std::invalid_argument("There are no Beneficiaries(Beneficiaries Empty)");
+
     }
     else{
         for(Beneficiary* beneficiary : Beneficiaries){
@@ -211,15 +349,18 @@ Beneficiary& MedicalWareHouse::getBeneficiary(int beneficiaryId) const {
                 return *beneficiary;
             }
         }
-        throw std::runtime_error("there is no Beneficiary with this id");
+        std::cout << "There is no Beneficiary with this id" << std::endl;
     }
+    throw std::invalid_argument("There are no Beneficiaries(Beneficiaries Empty)");
 }
 
 
 // Get a Volunteer by ID
 Volunteer& MedicalWareHouse::getVolunteer(int volunteerId) const {
     if(volunteers.empty()){
-        throw std::runtime_error("there is no volunteers");
+        std::cout << "There are no Volunteers(Volunteers Empty)" << std::endl;
+        throw std::invalid_argument("There are no Volunteers(Volunteers Empty)");
+
     }
     else{
         for(Volunteer* volunteer : volunteers){
@@ -227,15 +368,18 @@ Volunteer& MedicalWareHouse::getVolunteer(int volunteerId) const {
                 return *volunteer;
             }
         }
-        throw std::runtime_error("there is no volunteer with this id");
+        std::cout << "There is no Volunteer with this id" << std::endl;
     }
+    throw std::invalid_argument("There are no Volunteers(Volunteers Empty)");
 }
 
 
 // Get a SupplyRequest by ID
 SupplyRequest& MedicalWareHouse::getRequest(int requestId) const {
     if (pendingRequests.empty() && inProcessRequests.empty() && completedRequests.empty()){
-        throw std::runtime_error("Request does not exist");
+        std::cout << "There are no Requests(Requests Empty)" << std::endl;
+        throw std::invalid_argument("There are no Requests(Requests Empty)");
+        
     }
     else{
         for(SupplyRequest* request : pendingRequests){
@@ -253,8 +397,9 @@ SupplyRequest& MedicalWareHouse::getRequest(int requestId) const {
                 return *request;
             }
         }
-        throw std::runtime_error("there is no request with this id");
+        std::cout << "There is no request with this id" << std::endl;
     }
+    throw std::invalid_argument("There are no Requests(Requests Empty)");
 
     
 }
@@ -263,7 +408,8 @@ SupplyRequest& MedicalWareHouse::getRequest(int requestId) const {
 // Get all actions
 const vector<CoreAction*>& MedicalWareHouse::getActions() const {
     if(actionsLog.empty()){
-        throw std::runtime_error("there is no actions");
+        std::cout << "There are no actions(Actions Empty)" << std::endl;
+        return actionsLog;
     }
     else{
         return actionsLog;
@@ -274,7 +420,9 @@ const vector<CoreAction*>& MedicalWareHouse::getActions() const {
 // Get available Inventory Manager
 Volunteer* MedicalWareHouse::getInventoryManager() {
     if(volunteers.empty()){
-        throw std::runtime_error("there is no volunteers");
+        std::cout << "There are no Volunteers(Volunteers Empty)" << std::endl;
+        return nullptr;
+
     }
      std::vector<Volunteer*>::iterator it = volunteers.begin();
         while(it != volunteers.end()){
@@ -284,11 +432,13 @@ Volunteer* MedicalWareHouse::getInventoryManager() {
                 it = volunteers.erase(it); // remove the volunteer from the vector
                 volunteers.push_back(volunteer); // push him back to the vector
                 return volunteer;
+                std::cout << "Inventory Manager Volunteer found" << std::endl;
             }
             else{
                 ++it;
             }
         }
+        std::cout << "All Inventory Managers are busy" << std::endl;
         return nullptr;
     }
 
@@ -308,7 +458,8 @@ SupplyRequest* MedicalWareHouse::getPendingRequest() {
 // Get Courier Volunteer
 Volunteer* MedicalWareHouse::getCourierVolunteer() {
     if(volunteers.empty()){
-        throw std::runtime_error("there is no volunteers");
+        std::cout << "There are no Volunteers(Volunteers Empty)" << std::endl;
+        return nullptr;
     }
     std::vector<Volunteer*>::iterator it = volunteers.begin();
     while(it != volunteers.end()){
@@ -323,9 +474,11 @@ Volunteer* MedicalWareHouse::getCourierVolunteer() {
             ++it;
         }
     }
+    std::cout << "All Courier Volunteers are busy" << std::endl;
     return nullptr;
-
 }
+
+
 // Get the next collecting request
 SupplyRequest* MedicalWareHouse::getCollectingRequest() {
     if(inProcessRequests.empty()){
@@ -347,6 +500,7 @@ SupplyRequest* MedicalWareHouse::getCollectingRequest() {
 //Check the completed requests
 void MedicalWareHouse::completedRequestsCheck(){
     if(inProcessRequests.empty()){
+        std::cout << "There are no requests in process" << std::endl;
         return;
     }
     else{
@@ -389,7 +543,7 @@ void MedicalWareHouse::completedRequestsCheck(){
 //Check the beneficiary id input
 bool MedicalWareHouse::BeneficiaryCheck(int beneId){
     if(Beneficiaries.empty()){
-        throw std::runtime_error("there is no Beneficiaries");
+        std::cout << "There are no Beneficiaries(Beneficiaries Empty)" << std::endl;
     }
     else{
         for(Beneficiary* beneficiary : Beneficiaries){
@@ -398,7 +552,7 @@ bool MedicalWareHouse::BeneficiaryCheck(int beneId){
                     return true;
                 }
                 else{
-                    throw std::runtime_error("Cannnot place this request");
+                    std::cout << "Error: Cannnot place this request";
                 }
 
             }

@@ -1,7 +1,7 @@
 # Compiler and linker
 CXX = g++
 INCDIR = /workspaces/SPLProject1/Skeleton/Skeleton/include
-CXXFLAGS = -Wall -Wextra -std=c++11 -O2 -I$(INCDIR)
+CXXFLAGS = -Wall -Wextra -std=c++11 -O2 -I$(INCDIR) -g
 
 # Directories
 SRC_DIR = /workspaces/SPLProject1/Skeleton/Skeleton/src

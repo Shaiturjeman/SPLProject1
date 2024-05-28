@@ -53,7 +53,7 @@ CoreAction &CoreAction::operator=(const CoreAction &other) {
 
 //Destructor
 CoreAction::~CoreAction() {
-    delete this;
+    
 }
 
 
@@ -67,13 +67,18 @@ void SimulateStep::act(MedicalWareHouse &medWareHouse){
 
 
     for (int i = 0; i < numOfSteps; ++i) {
+        int lapse = 0;
+        std::cout << "Step " << i << std::endl;
         // Stage 1: Supply request processing
         InventoryManagerVolunteer *invManager = dynamic_cast<InventoryManagerVolunteer*>(medWareHouse.getInventoryManager());
         SupplyRequest *pendingRequest = medWareHouse.getPendingRequest();
 
         while (invManager != nullptr && pendingRequest != nullptr) {
+            std::cout << "first loop "  << std::endl;
             pendingRequest->setInventoryManagerId(invManager->getId());
             pendingRequest->setStatus(RequestStatus::COLLECTING);
+            medWareHouse.addRequest(pendingRequest);
+            
             invManager->acceptRequest(*pendingRequest);
 
             pendingRequest = medWareHouse.getPendingRequest();
@@ -83,20 +88,25 @@ void SimulateStep::act(MedicalWareHouse &medWareHouse){
         // Stage 2: Advance time units
         // Decrement the timeLeft for each Inventory Manager
         invManager = dynamic_cast<InventoryManagerVolunteer*>(medWareHouse.getInventoryManager());
-        while (invManager != nullptr) {
+        while (invManager != nullptr && lapse < medWareHouse.getVolunteerCounter()) {
+            std::cout << "second loop "  << std::endl;
             if (invManager->isBusy()) {
                 invManager->decreaseCoolDown();
             }
             invManager = dynamic_cast<InventoryManagerVolunteer*>(medWareHouse.getInventoryManager());
+            lapse++;
         }
 
         // Decrement the distanceLeft for each Courier
         CourierVolunteer *courier = dynamic_cast<CourierVolunteer*>(medWareHouse.getCourierVolunteer());
-        while (courier != nullptr) {
+          lapse = 0;
+        while (courier != nullptr && lapse < medWareHouse.getBeneficiaryCounter()) {
+            std::cout << "third loop "  << std::endl;
             if (courier->isBusy()) {
                 courier->decreaseDistanceLeft();
             }
             courier = dynamic_cast<CourierVolunteer*>(medWareHouse.getCourierVolunteer());
+            lapse++;
         }
 
         // Stage 3: Volunteer and Supply Requests Completion Check
@@ -190,7 +200,9 @@ PrintRequestStatus::PrintRequestStatus(int id) : requestId(id) {
 //Print the Request Status in the Medical Warehouse
 void PrintRequestStatus::act(MedicalWareHouse &medWareHouse){
     SupplyRequest request = medWareHouse.getRequest(requestId);
+    std::cout << " I got here1" << std::endl;
     std::cout << request.toString() << std::endl;
+    std::cout << " I got here2" << std::endl;
 }
 
 //Clone the PrintRequestStatus

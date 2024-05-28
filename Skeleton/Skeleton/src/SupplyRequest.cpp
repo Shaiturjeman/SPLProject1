@@ -3,7 +3,7 @@
 #include "MedicalWarehouse.h"
 #include "Volunteer.h"
 #include "Action.h"
-
+#include <iostream>
 #include <string>
 #include <stdexcept>
 
@@ -11,13 +11,16 @@
 SupplyRequest::SupplyRequest(int id, int beneficiaryId, int distance) 
     : id(id), beneficiaryId(beneficiaryId), distance(distance){
         if(id<0){
-            throw std::runtime_error("id must be posistive");
+            std::cout << "Error: id must be positive" << std::endl;
+            return;
         }
         if(beneficiaryId<0){
-            throw std::runtime_error("benficiaryId must be positive");
+            std::cout << "Error: beneficiaryId must be positive" << std::endl;
+            return;
         }
         if(distance<0){
-            throw std::runtime_error("distance must be positive");
+            std::cout << "Error: distance must be positive" << std::endl;
+            return;
         }
         inventoryManagerId = NO_VOLUNTEER;
         CourierId = NO_VOLUNTEER;
@@ -111,5 +114,5 @@ const std::string SupplyRequest::toString() const{
 
 // Destructor
 SupplyRequest::~SupplyRequest(){
-    delete this;
+    
 }

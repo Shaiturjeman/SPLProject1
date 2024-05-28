@@ -59,5 +59,6 @@
         "streambuf": "cpp",
         "typeinfo": "cpp",
         "sstream": "cpp"
-    }
+    },
+    "cmake.sourceDirectory": "/workspaces/SPLProject1/build/CMakeFiles/3.18.4/CompilerIdC"
 }

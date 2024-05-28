@@ -5,18 +5,23 @@
 #include "Action.h" 
 #include <string> 
 #include <stdexcept>
+#include <iostream>
 
 // Constructor implementation
 Beneficiary::Beneficiary(int id, const string &name, int locationDistance, int maxRequests)
     : id(id), name(name), locationDistance(locationDistance), maxRequests(maxRequests) {
         if(id<0){
-            throw std::runtime_error("id must be positive");
+            std::cout << "Error: id must be positive" << std::endl;
+            return;
         }
         if(locationDistance<0){
-            throw std::runtime_error("locationDistance must be positive");
+            std::cout << "Error: locationDistance must be positive" << std::endl;
+            return;
+            
         }
         if(maxRequests<0){
-            throw std::runtime_error("maxRequests must be positive");
+            std::cout << "Error: maxRequests must be positive" << std::endl;
+            return;
         }
     
     
