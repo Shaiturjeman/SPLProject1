@@ -10,10 +10,12 @@
 using namespace std;
 
 // Constructor implementation.
-Volunteer::Volunteer(int id, const string &name):id(id) , name(name), activeRequestId(NO_REQUEST), completedRequestId(NO_REQUEST){
+Volunteer::Volunteer(int id, const string &name):id(id) , name(name){
     if(id<0){
         std::cout << "Error: id must be positive" << std::endl;
     }
+    activeRequestId = NO_REQUEST;
+    completedRequestId = NO_REQUEST;
 }
 
 //get the ID of the Volunteer.
@@ -60,18 +62,18 @@ InventoryManagerVolunteer * InventoryManagerVolunteer::clone() const {
 
 // Simulate Volunteer step.
 void InventoryManagerVolunteer::step() {
-    if(isBusy() && (timeLeft!=NO_REQUEST))
-        if (timeLeft>0)
-        {
+    if(isBusy() && (timeLeft!=NO_REQUEST)) {
+        if (timeLeft>0) {
             timeLeft--;
         }
-        if (timeLeft==0)
-        {
+        else if(timeLeft==0) {
             completedRequestId = activeRequestId;
             activeRequestId = NO_REQUEST;
             timeLeft = NO_REQUEST;
         }
+    }
 }
+
 
 //Get the coolDown of the InventoryManagerVolunteer.
 int InventoryManagerVolunteer::getCoolDown() const {
@@ -114,7 +116,7 @@ bool InventoryManagerVolunteer::hasRequestsLeft() const {
 
 //Check if the InventoryManagerVolunteer can take the request.
 bool InventoryManagerVolunteer::canTakeRequest(const SupplyRequest &request) const {
-    return (!isBusy() &&  timeLeft == NO_REQUEST && request.getStatus() == RequestStatus::PENDING);
+    return (!isBusy() &&  timeLeft <= 0  && request.getStatus() == RequestStatus::PENDING);
 }
 
 // Inventory Manager accepts the request.
@@ -126,22 +128,30 @@ void InventoryManagerVolunteer::acceptRequest(const SupplyRequest &request) {
     }
     activeRequestId = request.getId();
     timeLeft = coolDown;
+    
 }
 
 //Convert the InventoryManagerVolunteer into a string.
-string InventoryManagerVolunteer::toString() const{
-    return "Volunteer ID: " + std::to_string(getId()) + "\n"
-            + "IsBusy " + std::to_string(isBusy()) + "\n" ;
-            if(!isBusy()) std::cout << "RequestID: None"  "\n";
-            else{
-                std::cout << "RequestID: " + std::to_string(getActiveRequestId()) + "\n";}
-            if(timeLeft!=NO_REQUEST)    
-            std::cout << "TimeLeft: " + std::to_string(timeLeft) + "\n";
-            else{
-                std::cout << "TimeLeft: None" << "\n";}
-            std::cout << "RequestLeft ID: " + std::to_string(getActiveRequestId()) << "\n";    
-            }
-
+string InventoryManagerVolunteer::toString() const {
+    string result = "Volunteer ID: " + std::to_string(getId()) + "\n";
+    if(isBusy()){
+        result += "IsBusy: True \n";
+    } else {
+        result += "IsBusy: False\n";
+    }
+    if(!isBusy()) {
+        result += "RequestID: None\n";
+    } else {
+        result += "RequestID: " + std::to_string(getActiveRequestId()) + "\n";
+    }
+    if(timeLeft != NO_REQUEST) {
+        result += "TimeLeft: " + std::to_string(timeLeft) + "\n";
+    } else {
+        result += "TimeLeft: None\n";
+    }
+    result += "RequestLeft ID: " + std::to_string(getActiveRequestId()) + "\n";
+    return result;
+}
 //InventoryManagerVolunteer destructor.
 InventoryManagerVolunteer::~InventoryManagerVolunteer() {
     ;
@@ -213,6 +223,10 @@ void CourierVolunteer::acceptRequest(const SupplyRequest &request) {
 
 // Decrease distanceLeft by distancePerStep.
 void CourierVolunteer::step() {
+    if(!isBusy() || distanceLeft == NO_REQUEST)
+    {
+        return;
+    }
     distanceLeft -= distancePerStep;
     if (distanceLeft <= 0)
     {

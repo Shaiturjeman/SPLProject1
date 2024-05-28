@@ -36,6 +36,7 @@ class MedicalWareHouse {
         int getVolunteerCounter();
         void completedRequestsCheck();
         void addBeneficiary(Beneficiary* beneficiary);
+        void Step();
         ~MedicalWareHouse();
 
         // Copy constructor

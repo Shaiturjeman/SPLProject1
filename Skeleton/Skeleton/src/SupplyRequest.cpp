@@ -51,18 +51,17 @@ int SupplyRequest::getBeneficiaryId() const {
 
 // Set the status of the SupplyRequest
 void SupplyRequest::setStatus(RequestStatus status){
-    status = status;
+    this->status = status;
 }
 
 // Set the ID of the Inventory Manager assignd to the SupplyRequest
 void SupplyRequest::setInventoryManagerId(int inventoryManagerId){
-    inventoryManagerId = inventoryManagerId;
+    this->inventoryManagerId = inventoryManagerId;
     setStatus(RequestStatus::COLLECTING);
 }
 
-// Set the Id of the Courier assigned to the SupplyRequest
 void SupplyRequest::setCourierId(int CourierId){
-    CourierId = CourierId;
+    this->CourierId = CourierId;
     setStatus(RequestStatus::ON_THE_WAY);
 }
 
@@ -96,7 +95,7 @@ string SupplyRequest::statusToString(RequestStatus status) const{
         case RequestStatus::DONE:
             return "DONE";
         default:
-            return "PENDING";
+            throw std::invalid_argument("Invalid status");
     }
 }
 

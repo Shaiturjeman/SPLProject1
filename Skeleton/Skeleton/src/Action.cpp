@@ -67,47 +67,47 @@ void SimulateStep::act(MedicalWareHouse &medWareHouse){
 
 
     for (int i = 0; i < numOfSteps; ++i) {
-        int lapse = 0;
         std::cout << "Step " << i << std::endl;
         // Stage 1: Supply request processing
         InventoryManagerVolunteer *invManager = dynamic_cast<InventoryManagerVolunteer*>(medWareHouse.getInventoryManager());
         SupplyRequest *pendingRequest = medWareHouse.getPendingRequest();
 
-        while (invManager != nullptr && pendingRequest != nullptr) {
-            std::cout << "first loop "  << std::endl;
-            pendingRequest->setInventoryManagerId(invManager->getId());
-            pendingRequest->setStatus(RequestStatus::COLLECTING);
-            medWareHouse.addRequest(pendingRequest);
+
+        while (invManager != nullptr && pendingRequest != nullptr){
             
+            std::cout << "first loop "  << std::endl;
             invManager->acceptRequest(*pendingRequest);
-
-            pendingRequest = medWareHouse.getPendingRequest();
+            std::cout << "The inventory manager get the request" << std::endl;
+            pendingRequest->setInventoryManagerId(invManager->getId());
+            std::cout << "The request is being processed by the Inventory Manager" << std::endl;
+            medWareHouse.addRequest(pendingRequest);
             invManager = dynamic_cast<InventoryManagerVolunteer*>(medWareHouse.getInventoryManager());
-        }
+            if(invManager != nullptr){
+                pendingRequest = medWareHouse.getPendingRequest();
 
+            }
+            
+            
+        }
+            CourierVolunteer* courier = dynamic_cast<CourierVolunteer*>(medWareHouse.getCourierVolunteer());
+            SupplyRequest* collectingRequest = medWareHouse.getCollectingRequest();
+
+            while (courier != nullptr && collectingRequest != nullptr){
+                std::cout << "second loop "  << std::endl;
+                courier->acceptRequest(*collectingRequest);
+                std::cout << "The courier get the collecting request" << std::endl;
+                collectingRequest->setCourierId(courier->getId());
+                std::cout << "The collecting request is being processed by the Courier" << std::endl;
+                medWareHouse.addRequest(collectingRequest);
+                courier = dynamic_cast<CourierVolunteer*>(medWareHouse.getCourierVolunteer());
+                if(courier != nullptr){
+                    collectingRequest = medWareHouse.getCollectingRequest();
+                }
+            }
         // Stage 2: Advance time units
         // Decrement the timeLeft for each Inventory Manager
-        invManager = dynamic_cast<InventoryManagerVolunteer*>(medWareHouse.getInventoryManager());
-        while (invManager != nullptr && lapse < medWareHouse.getVolunteerCounter()) {
-            std::cout << "second loop "  << std::endl;
-            if (invManager->isBusy()) {
-                invManager->decreaseCoolDown();
-            }
-            invManager = dynamic_cast<InventoryManagerVolunteer*>(medWareHouse.getInventoryManager());
-            lapse++;
-        }
+        medWareHouse.Step();
 
-        // Decrement the distanceLeft for each Courier
-        CourierVolunteer *courier = dynamic_cast<CourierVolunteer*>(medWareHouse.getCourierVolunteer());
-          lapse = 0;
-        while (courier != nullptr && lapse < medWareHouse.getBeneficiaryCounter()) {
-            std::cout << "third loop "  << std::endl;
-            if (courier->isBusy()) {
-                courier->decreaseDistanceLeft();
-            }
-            courier = dynamic_cast<CourierVolunteer*>(medWareHouse.getCourierVolunteer());
-            lapse++;
-        }
 
         // Stage 3: Volunteer and Supply Requests Completion Check
         medWareHouse.completedRequestsCheck();
@@ -131,12 +131,12 @@ AddRequset::AddRequset(int id) : beneficiaryId(id) {
 
 //Make the Action in the Medical Warehouse
 void AddRequset::act(MedicalWareHouse &medWareHouse){
-    if(medWareHouse.BeneficiaryCheck(beneficiaryId)){
         Beneficiary& ben = medWareHouse.getBeneficiary(beneficiaryId);
-        SupplyRequest* request = new SupplyRequest(beneficiaryId,ben.getId(), ben.getBeneficiaryDistance());
+        int num = ben.getNumRequests();
+        SupplyRequest* request = new SupplyRequest(num,ben.getId(), ben.getBeneficiaryDistance());
+        ben.addRequest(num);
         medWareHouse.addRequest(request);
         std::cout << "The request is initilized with a Pending status and added to the Pending request list in the warehouse" << std::endl;
-    }
     return;
 }
 
@@ -177,9 +177,6 @@ void RegisterBeneficiary::act(MedicalWareHouse &medWareHouse){
     else{
         error("Invalid Beneficiary Type");
     }
-    AddRequset* newAction = new AddRequset(id);
-    newAction->act(medWareHouse);
-
 }
 
 //Clone the RegisterBeneficiary
@@ -363,59 +360,4 @@ void PrintBeneficiaryStatus::act(MedicalWareHouse &medWareHouse){
         return "Restore the warehouse to the last backup.";
     }
 
-    //  int i = 0;  
-    // while(i < numOfSteps){
-    //     // Finding a Inventory Manager Volunneter and a Supply Request from the Pending Requests
-    //     Volunteer *currVol = medWareHouse.getInventoryManager();
-    //     SupplyRequest *request = medWareHouse.getPendingRequest();
-    //     if(currVol == nullptr || request == nullptr){
-    //         error("No Inventory Manager or Request");
-    //         medWareHouse.addRequest(request);
-    //         std::cout << "No Inventory Manager or Request" << std::endl;
-    //         return;
-    //     }
-    
-    //     while (true) 
-    //     {
-    //         request->setInventoryManagerId(currVol->getId());
-    //         request->setStatus(RequestStatus::COLLECTING);
-    //         dynamic_cast<InventoryManagerVolunteer*>(currVol)->acceptRequest(*request);
-    //         medWareHouse.addRequest(request);
-    //         request = medWareHouse.getPendingRequest();
-    //         currVol = medWareHouse.getInventoryManager();
-    //         if(request == nullptr){
-    //             break;
-    //         }
-    //         if(currVol == nullptr){
-    //             medWareHouse.addRequest(request);
-    //             break;
-    //         }
-    //     }
-
-    //     currVol = medWareHouse.getCourierVolunteer();
-
-
-    //     // Finding a Courier Volunneter and a Supply Request from the Collecting Requests
-    //     while(currVol != nullptr){
-    //         request = medWareHouse.getCollectingRequest();
-    //         if(request == nullptr){
-    //             break;
-    //         }
-    //         else{
-    //             request->setCourierId(currVol->getId());
-    //             dynamic_cast<CourierVolunteer*>(currVol)->acceptRequest(*request);
-    //         }
-    //         currVol = medWareHouse.getCourierVolunteer();
-    //         }
-
-    //     // Incrementing
-    //     medWareHouse.stepInc();
-    //     i++;
-    //     }
-
-
    
-   
-            
-
-
