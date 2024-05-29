@@ -7,6 +7,7 @@
 #include <string>
 
 
+
 //CoreAction Constructor
 CoreAction::CoreAction() :
     status(ActionStatus::ERROR) {
@@ -89,20 +90,25 @@ void SimulateStep::act(MedicalWareHouse &medWareHouse){
             
             
         }
-            CourierVolunteer* courier = dynamic_cast<CourierVolunteer*>(medWareHouse.getCourierVolunteer());
+        std::cout << "AVARNU BESHALOM" << std::endl;
             SupplyRequest* collectingRequest = medWareHouse.getCollectingRequest();
-
-            while (courier != nullptr && collectingRequest != nullptr){
+            if(collectingRequest != nullptr){
+                CourierVolunteer* courier = dynamic_cast<CourierVolunteer*>(medWareHouse.getCourierVolunteer(collectingRequest->getDistance()));;
+                            while (courier != nullptr && collectingRequest != nullptr){
                 std::cout << "second loop "  << std::endl;
                 courier->acceptRequest(*collectingRequest);
                 std::cout << "The courier get the collecting request" << std::endl;
                 collectingRequest->setCourierId(courier->getId());
                 std::cout << "The collecting request is being processed by the Courier" << std::endl;
                 medWareHouse.addRequest(collectingRequest);
-                courier = dynamic_cast<CourierVolunteer*>(medWareHouse.getCourierVolunteer());
-                if(courier != nullptr){
-                    collectingRequest = medWareHouse.getCollectingRequest();
+                collectingRequest = medWareHouse.getCollectingRequest();
+                if(collectingRequest != nullptr){
+                    courier = dynamic_cast<CourierVolunteer*>(medWareHouse.getCourierVolunteer(collectingRequest->getDistance()));
                 }
+                else{
+                    courier = nullptr;
+                }
+            }
             }
         // Stage 2: Advance time units
         // Decrement the timeLeft for each Inventory Manager
@@ -220,18 +226,16 @@ PrintBeneficiaryStatus::PrintBeneficiaryStatus(int BeneficiaryId) : beneficiaryI
 //Print the Beneficiary Status in the Medical Warehouse
 void PrintBeneficiaryStatus::act(MedicalWareHouse &medWareHouse){
     Beneficiary& ben = medWareHouse.getBeneficiary(beneficiaryId);
-    std::cout << "Beneficiary ID: " + std::to_string(ben.getId()) + "\n"
-            + "Request Id: "  << std::endl;
-            for(int i : ben.getRequestsIds()){
-                std::cout << i << " " << "\n" << std::endl;
-            }
-    std::cout << "Status: " << std::endl;
-            for (int i : ben.getRequestsIds()){
-                SupplyRequest request = medWareHouse.getRequest(i);
-                std::cout << request.statusToString(request.getStatus()) << "\n" << std::endl;
-            }
-    std::cout << "Requst Left: " << ben.getMaxRequests() - ben.getNumRequests() << std::endl;
+    std::cout << "Beneficiary ID: " + std::to_string(ben.getId()) << std::endl;
+
+    for(int i : ben.getRequestsIds()){
+        SupplyRequest request = medWareHouse.getRequest(i);
+        std::cout << "Request ID: " << i << std::endl;
+        std::cout << "Request Status: " << request.statusToString(request.getStatus()) << std::endl;
     }
+
+    std::cout << "Requests Left: " << ben.getMaxRequests() - ben.getNumRequests() << std::endl;
+}
 
     //Clone the PrintBeneficiaryStatus
     PrintBeneficiaryStatus *PrintBeneficiaryStatus::clone() const {
@@ -293,10 +297,7 @@ void PrintBeneficiaryStatus::act(MedicalWareHouse &medWareHouse){
     //Close the Medical Warehouse
     void Close::act(MedicalWareHouse &medWareHouse){
         medWareHouse.close();
-        std::cout << "Medical Warehouse is now closed!" << std::endl;
-        // delete &medWareHouse;
-        
-        
+        return;
         
     }
 

@@ -19,7 +19,7 @@ MedicalWareHouse::MedicalWareHouse(const std::string &configFilePath)
     // Load configuration from file, initialize members
     std::ifstream configFile(configFilePath);
     if (!configFile) {
-        std::cout << "Erro: Unable to open config file: " << configFilePath << std::endl;
+        std::cout << "Error: Unable to open config file: " << configFilePath << std::endl;
         return;
     }
     // Parse the configuration file and initialize warehouse data
@@ -38,28 +38,29 @@ MedicalWareHouse::MedicalWareHouse(const std::string &configFilePath)
             RegisterBeneficiary* newAction = new RegisterBeneficiary(name, facility_type, location_distance, max_requests);
             newAction->act(*this);
             CoreAction* newCoreAction = newAction->clone();
-            actionsLog.push_back(newCoreAction);
+            addAction(newCoreAction);
+
         } 
         else if (word == "volunteer") {
-            std::string name, role1, role2;
+            std::string name, role, subRole;
             int param1, param2 = 0;
-            iss >> name >> role1 >> role2 >> param1;
-            std::string role = role1 + " " + role2;
-            if (role == "inventory manager") {
+            iss >> name >> role;
+            if (role == "inventory") {
+                iss >> subRole >> param1; // read "manager" into subRole
                 InventoryManagerVolunteer* volunteer = new InventoryManagerVolunteer(volunteerCounter, name, param1);
-                volunteers.push_back(volunteer);
+                addVolunteer(volunteer);
                 std::cout << "Inventory Manager Volunteer added: " << volunteer->toString() << std::endl;
-                volunteerCounter++;
             } 
             else if (role == "courier") {
-                iss >> param2;
+                iss >> param1 >> param2;
                 CourierVolunteer* volunteer = new CourierVolunteer(volunteerCounter, name, param1, param2);
                 addVolunteer(volunteer);
-                volunteers.push_back(volunteer);
                 std::cout << "Courier Volunteer added: " << volunteer->toString() << std::endl;
-                volunteerCounter++;
             }
             std::cout << "Volunteer added: " << name << " " << role << " " << param1 << " " << param2 << std::endl;
+        }
+        for(Volunteer* v : volunteers){
+            std::cout << v->toString() << std::endl;
         }
         
 
@@ -179,46 +180,42 @@ void MedicalWareHouse::start() {
                 RegisterBeneficiary* newAction = new RegisterBeneficiary(name, facility_type, location_distance, max_requests);
                 newAction->act(*backup);
                 CoreAction* newCoreAction = newAction->clone();
-                backup->addAction(newCoreAction);
+                addAction(newCoreAction);
 
             } 
             else if (cmd == "volunteer") {
-                std::string name, role;
+                std::string name, role, subRole;
                 int param1, param2 = 0;
-                iss >> name >> role >> param1;
+                iss >> name >> role;
                 if (role == "inventory") {
-                    std::string managerRole;
-                    iss >> managerRole;
-                    if (managerRole == "manager") {
-                        InventoryManagerVolunteer* volunteer = new InventoryManagerVolunteer(getVolunteerCounter() , name, param1);
-                        backup->addVolunteer(volunteer);
-                        std::cout << "Inventory Manager Volunteer added: " << volunteer->toString() << std::endl;
-                    }
+                    iss >> subRole >> param1; // read "manager" into subRole
+                    InventoryManagerVolunteer* volunteer = new InventoryManagerVolunteer(volunteerCounter, name, param1);
+                    addVolunteer(volunteer);
+                    std::cout << "Inventory Manager Volunteer added: " << volunteer->toString() << std::endl;
                 } 
                 else if (role == "courier") {
-                    iss >> param2;
-                    CourierVolunteer* volunteer = new CourierVolunteer(getVolunteerCounter(), name, param1, param2);
-                    backup->addVolunteer(volunteer);
+                    iss >> param1 >> param2;
+                    CourierVolunteer* volunteer = new CourierVolunteer(volunteerCounter, name, param1, param2);
+                    addVolunteer(volunteer);
                     std::cout << "Courier Volunteer added: " << volunteer->toString() << std::endl;
                 }
-            }
 
-            if (cmd == "request") {
-                int beneficiaryId;
-                iss >> beneficiaryId;
-                if (iss.fail() || beneficiaryId < 0 ||beneficiaryId > beneficiaryCounter || getBeneficiary(beneficiaryId).canMakeRequest() == false){
-                    cout << "Error:Cannnot place this request" << endl;
+                if (cmd == "request") {
+                    int beneficiaryId;
+                    iss >> beneficiaryId;
+                    if (iss.fail() || beneficiaryId < 0 ||beneficiaryId > beneficiaryCounter || getBeneficiary(beneficiaryId).canMakeRequest() == false){
+                        cout << "Error:Cannnot place this request" << endl;
+                            
+                    }
+                    else {
+                        CoreAction* action = new AddRequset(beneficiaryId);
+                        addAction(action);
+                        action->act(*this);
                         
-                }
-                else {
-                    CoreAction* action = new AddRequset(beneficiaryId);
-                    addAction(action);
-                    action->act(*this);
-                    
-                    cout << "Request added successfully" << endl;
-                }
+                        cout << "Request added successfully" << endl;
+                    }
 
-            } 
+                } 
                 else if (cmd == "requestStatus") {
                     int requestId;
                     iss >> requestId;
@@ -228,11 +225,8 @@ void MedicalWareHouse::start() {
                     }
                     else {
                         CoreAction* action = new PrintRequestStatus(requestId);
-                        cout << "1Request status printed" << endl;
                         action->act(*this);
-                        cout << "2Request status printed" << endl;
                         addAction(action);
-                        cout << "3Request status printed" << endl;
                         }
 
                     }  
@@ -289,9 +283,11 @@ void MedicalWareHouse::start() {
 
                     else{
                         CoreAction* action = new Close();
-                        action->act(*this);
                         addAction(action);
+                        action->act(*this);
+                        
                         cout << "Medical services are now closed." << endl; 
+                        return;
                     } 
                         
                 } 
@@ -330,7 +326,6 @@ void MedicalWareHouse::addAction(CoreAction* action) {
 // Get a Beneficiary by ID
 Beneficiary& MedicalWareHouse::getBeneficiary(int beneficiaryId) const {     
     if(Beneficiaries.empty()){
-        std::cout << "There are no Beneficiaries(Beneficiaries Empty)" << std::endl;;
         throw std::invalid_argument("There are no Beneficiaries(Beneficiaries Empty)");
 
     }
@@ -349,7 +344,6 @@ Beneficiary& MedicalWareHouse::getBeneficiary(int beneficiaryId) const {
 // Get a Volunteer by ID
 Volunteer& MedicalWareHouse::getVolunteer(int volunteerId) const {
     if(volunteers.empty()){
-        std::cout << "There are no Volunteers(Volunteers Empty)" << std::endl;
         throw std::invalid_argument("There are no Volunteers(Volunteers Empty)");
 
     }
@@ -388,7 +382,6 @@ SupplyRequest& MedicalWareHouse::getRequest(int requestId) const {
                 return *request;
             }
         }
-        std::cout << "There is no request with this id" << std::endl;
     }
     throw std::invalid_argument("There are no Requests(Requests Empty)");
 
@@ -447,22 +440,16 @@ SupplyRequest* MedicalWareHouse::getPendingRequest() {
 }
 
 // Get Courier Volunteer
-Volunteer* MedicalWareHouse::getCourierVolunteer() {
+Volunteer* MedicalWareHouse::getCourierVolunteer(int distance) {
     if(volunteers.empty()){
         std::cout << "There are no Volunteers(Volunteers Empty)" << std::endl;
         return nullptr;
     }
-    std::vector<Volunteer*>::iterator it = volunteers.begin();
-    while(it != volunteers.end()){
-        CourierVolunteer* cv = dynamic_cast<CourierVolunteer*>(*it);
-        if((cv != nullptr ) && (cv->isBusy() == false)){
-            Volunteer* volunteer = *it;
-            it = volunteers.erase(it); // remove the volunteer from the vector
-            volunteers.push_back(volunteer); // push him back to the vector
-            return volunteer;
-        }
-        else{
-            ++it;
+    for(Volunteer* v : volunteers){
+        CourierVolunteer* courier = dynamic_cast<CourierVolunteer*>(v);
+        if(courier != nullptr && courier->isBusy() == false && courier->getMaxDistance() >= distance){
+            std::cout << "Courier Volunteer found" << std::endl;
+            return courier;
         }
     }
     std::cout << "All Courier Volunteers are busy" << std::endl;
@@ -473,10 +460,11 @@ void MedicalWareHouse::Step(){
     for(Volunteer* vol : volunteers){
         InventoryManagerVolunteer* invManager = dynamic_cast<InventoryManagerVolunteer*>(vol);
         CourierVolunteer* courier = dynamic_cast<CourierVolunteer*>(vol);
-        if(invManager != nullptr){
+        if(invManager != nullptr && invManager->getTimeLeft() > 0){
             invManager->step();
+            
         }
-        else if(courier != nullptr){
+        else if(courier != nullptr && courier->getDistanceLeft() > 0){
             courier->step();
         }
     }
@@ -486,13 +474,22 @@ void MedicalWareHouse::Step(){
 // Get the next collecting request
 SupplyRequest* MedicalWareHouse::getCollectingRequest() {
     if(inProcessRequests.empty()){
+        std::cout << "There are no requests in process(GetCollectiongReq)" << std::endl;
         return nullptr;
     }
     else{
         for(SupplyRequest* request : inProcessRequests){
+
             if(request->getStatus() == RequestStatus::COLLECTING){
-                SupplyRequest* lastRequest = request;
-                return lastRequest;
+                int invId = request->getInventoryManagerId();
+                Volunteer& vol = getVolunteer(invId);
+                if( vol.isBusy() == false){
+                    std::cout << "Collecting Request found" << std::endl;
+                    return request;
+                }
+                else{
+                    return nullptr;
+                }
             }
         }
 
@@ -506,43 +503,25 @@ void MedicalWareHouse::completedRequestsCheck(){
         std::cout << "There are no requests in process" << std::endl;
         return;
     }
-    else{
-        for(Volunteer* vol :volunteers){
-            InventoryManagerVolunteer* invManager = dynamic_cast<InventoryManagerVolunteer*>(vol);
-            CourierVolunteer* courier = dynamic_cast<CourierVolunteer*>(vol);
-
-            if(invManager != nullptr){
-                if(invManager->isBusy() == false && invManager->getCompletedRequestId() != NO_REQUEST){
-                    for(SupplyRequest* request : inProcessRequests){
-                        if(request->getStatus() == RequestStatus::COLLECTING){
-                            CourierVolunteer* courierFree = dynamic_cast<CourierVolunteer*>(getCourierVolunteer());
-                            if(courierFree != nullptr){
-                                request->setCourierId(courierFree->getId());
-                                courierFree->acceptRequest(*request);
-                        }
+    for(SupplyRequest* request : inProcessRequests){
+        if(request->getStatus() == RequestStatus::ON_THE_WAY){
+            for(Volunteer* vol : volunteers){
+                CourierVolunteer* courier = dynamic_cast<CourierVolunteer*>(vol);
+                if(courier != nullptr && courier->isBusy() == false){
+                    request->setStatus(RequestStatus::DONE);
+                    completedRequests.push_back(request);
+                    auto it = std::find(inProcessRequests.begin(), inProcessRequests.end(), request);
+                    if (it != inProcessRequests.end()) {
+                        inProcessRequests.erase(it);
                     }
                 }
-            }
-            }
-            else if(courier != nullptr){
-                if(courier->isBusy() == false && courier->getCompletedRequestId() != NO_REQUEST){
-                    for(SupplyRequest* request : inProcessRequests){
-                        if(request->getStatus() == RequestStatus::ON_THE_WAY && courier->getDistanceLeft() == 0){
-                            request->setStatus(RequestStatus::DONE);
-                            completedRequests.push_back(request);
-                            auto it = std::find(inProcessRequests.begin(), inProcessRequests.end(), request);
-                            if (it != inProcessRequests.end()) {
-                                inProcessRequests.erase(it);
-                            }
-                        }
-                    }
-                }
-
             }
         }
-
     }
 }
+
+
+
 
 //Check the beneficiary id input
 bool MedicalWareHouse::BeneficiaryCheck(int beneId){
@@ -592,15 +571,27 @@ void MedicalWareHouse::addVolunteer(Volunteer* volunteer){
 
 // Close the warehouse
 void MedicalWareHouse::close(){
-    isOpen = false;
-    for(SupplyRequest* request : pendingRequests){
-        request->toString();
+    if(!pendingRequests.empty()){
+        for(SupplyRequest* request : pendingRequests){
+            if(request != nullptr){
+                std::cout << request->toString() << std::endl;
+
+            }
+        }
     }
-    for(SupplyRequest* request : inProcessRequests){
-        request->toString();
+    if(!inProcessRequests.empty()){
+        for(SupplyRequest* request : inProcessRequests){
+            if(request != nullptr){
+                std::cout << request->toString() << std::endl;
+            }
+        }
     }
-    for(SupplyRequest* request : completedRequests){
-        request->toString();
+    if(!completedRequests.empty()){
+        for(SupplyRequest* request : completedRequests){
+            if(request != nullptr){
+                std::cout << request->toString() << std::endl;
+            }
+        }
     }
 }
 

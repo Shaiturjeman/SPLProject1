@@ -66,7 +66,7 @@ void InventoryManagerVolunteer::step() {
         if (timeLeft>0) {
             timeLeft--;
         }
-        else if(timeLeft==0) {
+        if(timeLeft==0) {
             completedRequestId = activeRequestId;
             activeRequestId = NO_REQUEST;
             timeLeft = NO_REQUEST;
@@ -150,6 +150,8 @@ string InventoryManagerVolunteer::toString() const {
         result += "TimeLeft: None\n";
     }
     result += "RequestLeft ID: " + std::to_string(getActiveRequestId()) + "\n";
+    result += "CoolDown: " + std::to_string(coolDown) + "\n";
+
     return result;
 }
 //InventoryManagerVolunteer destructor.
@@ -207,7 +209,7 @@ bool CourierVolunteer::hasRequestsLeft() const {
 
 //Signal if the volunteer is not busy and the Request is within the maxDistance.
 bool CourierVolunteer::canTakeRequest(const SupplyRequest &request) const {
-    return (!isBusy() && request.getDistance() <= maxDistance);
+    return (!isBusy() && request.getDistance() <= maxDistance );
 }
 
 //Assign distanceLeft to Request's distance.
@@ -238,17 +240,28 @@ void CourierVolunteer::step() {
 
 //Convert the Courier Volunteer into a string.
 string CourierVolunteer::toString () const { 
-    return "Volunteer ID: " + std::to_string(getId()) + "\n"
-            + "IsBusy " + std::to_string(isBusy()) + "\n" ;
-            if(!isBusy()) std::cout << "RequestID: None"  "\n";
-            else{
-                std::cout << "RequestID: " + std::to_string(getActiveRequestId()) << "\n";}
-            if(distanceLeft!=NO_REQUEST)    
-            std::cout << "DistanceLeft: " + std::to_string(distanceLeft) + "\n";
-            else{
-                std::cout << "DistanceLeft: None" << "\n";}
-            std::cout << "RequestLeft ID: " + std::to_string(getActiveRequestId()) << "\n";    
-            }
+
+    string result = "Volunteer ID: " + std::to_string(getId()) + "\n";
+    if(isBusy()){
+        result += "IsBusy: True \n";
+    } else {
+        result += "IsBusy: False\n";
+    }
+    if(!isBusy()) {
+        result += "RequestID: None\n";
+    } else {
+        result += "RequestID: " + std::to_string(getActiveRequestId()) + "\n";
+    }
+    if(distanceLeft != NO_REQUEST) {
+        result += "DistanceLeft: " + std::to_string(distanceLeft) + "\n";
+    } else {
+        result += "DistanceLeft: None\n";
+    }
+    result += "RequestLeft ID: " + std::to_string(getActiveRequestId()) + "\n";
+    result += "DistancePerStep: " + std::to_string(distancePerStep) + "\n";
+    result += "maxDistance: " + std::to_string(maxDistance) + "\n";
+    return result;
+}
 
 //CourierVolunteer destructor.
 CourierVolunteer::~CourierVolunteer() {

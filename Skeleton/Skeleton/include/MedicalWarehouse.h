@@ -27,7 +27,7 @@ class MedicalWareHouse {
         bool isOpened() const;
         Volunteer *getInventoryManager();
         SupplyRequest *getPendingRequest();
-        Volunteer *getCourierVolunteer();
+        Volunteer *getCourierVolunteer(int distance);
         SupplyRequest *getCollectingRequest();
         void addVolunteer(Volunteer* volunteer);
         void stepInc();

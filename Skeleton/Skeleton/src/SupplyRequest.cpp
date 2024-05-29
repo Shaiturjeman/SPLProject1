@@ -103,12 +103,9 @@ string SupplyRequest::statusToString(RequestStatus status) const{
 
 // Convert the SupplyRequest to a string
 const std::string SupplyRequest::toString() const{
-    return "Request ID: " + std::to_string(id) + "\n"
-            + "Status: " + statusToString(status) + "\n"
-            + "Beneficiary ID: " + std::to_string(beneficiaryId) + "\n"
-            + "Inventory Manager: " + (inventoryManagerId == NO_VOLUNTEER ? "None" : std::to_string(inventoryManagerId)) + "\n"
-            + "Courier: " + (CourierId == NO_VOLUNTEER ? "None" : std::to_string(CourierId)) + "\n";
-
+    return "Request ID: " + std::to_string(id) + ", "
+            + "Beneficiary ID: " + std::to_string(beneficiaryId) + ", "
+            + "Status: " + statusToString(status);
 }
 
 // Destructor
