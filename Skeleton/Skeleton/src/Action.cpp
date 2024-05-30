@@ -11,29 +11,34 @@
 //CoreAction Constructor
 CoreAction::CoreAction() :
     status(ActionStatus::ERROR) {
-    errorMsg = "Error";
+    errorMsg = "ERROR";
     }
 
 // Get the status of the action
 ActionStatus CoreAction::getStatus() const{
     return status;
 }
-
 //Change the status of the action to Completed
 void CoreAction::complete(){
     status = ActionStatus::COMPLETED;
+    errorMsg = "COMPLETED";
 
 }
 
 //error handler
 void CoreAction::error(string errorMsg){
     status = ActionStatus::ERROR;
-    this->errorMsg = errorMsg;  
+    errorMsg = "ERROR: " ;  
 }
 
 //Get the error message
 string CoreAction::getErrorMsg() const{
-    return errorMsg;
+    if (errorMsg == "ERROR")
+    {
+        return "ERROR";
+    }
+    return "COMPLETED";
+    
 }
 
 
@@ -76,11 +81,8 @@ void SimulateStep::act(MedicalWareHouse &medWareHouse){
 
         while (invManager != nullptr && pendingRequest != nullptr){
             
-            std::cout << "first loop "  << std::endl;
             invManager->acceptRequest(*pendingRequest);
-            std::cout << "The inventory manager get the request" << std::endl;
             pendingRequest->setInventoryManagerId(invManager->getId());
-            std::cout << "The request is being processed by the Inventory Manager" << std::endl;
             medWareHouse.addRequest(pendingRequest);
             invManager = dynamic_cast<InventoryManagerVolunteer*>(medWareHouse.getInventoryManager());
             if(invManager != nullptr){
@@ -90,25 +92,20 @@ void SimulateStep::act(MedicalWareHouse &medWareHouse){
             
             
         }
-        std::cout << "AVARNU BESHALOM" << std::endl;
             SupplyRequest* collectingRequest = medWareHouse.getCollectingRequest();
             if(collectingRequest != nullptr){
                 CourierVolunteer* courier = dynamic_cast<CourierVolunteer*>(medWareHouse.getCourierVolunteer(collectingRequest->getDistance()));;
-                            while (courier != nullptr && collectingRequest != nullptr){
-                std::cout << "second loop "  << std::endl;
-                courier->acceptRequest(*collectingRequest);
-                std::cout << "The courier get the collecting request" << std::endl;
-                collectingRequest->setCourierId(courier->getId());
-                std::cout << "The collecting request is being processed by the Courier" << std::endl;
-                medWareHouse.addRequest(collectingRequest);
-                collectingRequest = medWareHouse.getCollectingRequest();
-                if(collectingRequest != nullptr){
-                    courier = dynamic_cast<CourierVolunteer*>(medWareHouse.getCourierVolunteer(collectingRequest->getDistance()));
+                while (courier != nullptr && collectingRequest != nullptr){
+                    courier->acceptRequest(*collectingRequest);
+                    collectingRequest->setCourierId(courier->getId());
+                    collectingRequest = medWareHouse.getCollectingRequest();
+                    if(collectingRequest != nullptr){
+                        courier = dynamic_cast<CourierVolunteer*>(medWareHouse.getCourierVolunteer(collectingRequest->getDistance()));
+                    }
+                    else{
+                        courier = nullptr;
+                    }
                 }
-                else{
-                    courier = nullptr;
-                }
-            }
             }
         // Stage 2: Advance time units
         // Decrement the timeLeft for each Inventory Manager
@@ -117,16 +114,17 @@ void SimulateStep::act(MedicalWareHouse &medWareHouse){
 
         // Stage 3: Volunteer and Supply Requests Completion Check
         medWareHouse.completedRequestsCheck();
+
             
     }
-    
+    complete();
 }
 SimulateStep *SimulateStep::clone() const {
     return new SimulateStep(*this);
 }
 
 string SimulateStep::toString() const {
-    return "SimulateStep " + std::to_string(numOfSteps);
+    return "step " + std::to_string(numOfSteps) + " " + getErrorMsg();
 }
 
 
@@ -142,7 +140,7 @@ void AddRequset::act(MedicalWareHouse &medWareHouse){
         SupplyRequest* request = new SupplyRequest(num,ben.getId(), ben.getBeneficiaryDistance());
         ben.addRequest(num);
         medWareHouse.addRequest(request);
-        std::cout << "The request is initilized with a Pending status and added to the Pending request list in the warehouse" << std::endl;
+        complete();
     return;
 }
 
@@ -153,7 +151,7 @@ AddRequset *AddRequset::clone() const {
 
 //Convert the AddRequest to a string 
 string AddRequset::toString() const {
-    return "Add request " + std::to_string(beneficiaryId);
+    return "request " + std::to_string(beneficiaryId) + " " + getErrorMsg()  ;
 }
 
 //RegisterBeneficiary Constructor
@@ -173,12 +171,12 @@ void RegisterBeneficiary::act(MedicalWareHouse &medWareHouse){
     if(beneficiaryType == ::beneficiaryType::Hospital){
         HospitalBeneficiary *ben = new HospitalBeneficiary(id, beneficiaryName, distance, maxRequests);
         medWareHouse.addBeneficiary(ben);
-        std::cout << "The Hospital Beneficiary is added to the Beneficiary list in the warehouse" << std::endl;
+        complete(); 
     }
     else if(beneficiaryType == ::beneficiaryType::Clinic){
         ClinicBeneficiary *ben = new ClinicBeneficiary(id, beneficiaryName, distance, maxRequests);
         medWareHouse.addBeneficiary(ben);
-        std::cout << "The Clinic Beneficiary is added to the Beneficiary list in the warehouse" << std::endl;
+        complete();
     }
     else{
         error("Invalid Beneficiary Type");
@@ -192,7 +190,11 @@ RegisterBeneficiary *RegisterBeneficiary::clone() const {
 
 //Convert the RegisterBeneficiary to a string
 string RegisterBeneficiary::toString() const {
-    return "Register Beneficiary " + beneficiaryName + " " "+ Hospital/Clinic "+ " " + std::to_string(distance) + " " + std::to_string(maxRequests);
+    return "Register Beneficiary " + beneficiaryName + 
+     " " "+ Hospital/Clinic "+ " " 
+     + std::to_string(distance) + " "
+     + std::to_string(maxRequests) + " "
+     + getErrorMsg();
 }
 
 
@@ -203,9 +205,12 @@ PrintRequestStatus::PrintRequestStatus(int id) : requestId(id) {
 //Print the Request Status in the Medical Warehouse
 void PrintRequestStatus::act(MedicalWareHouse &medWareHouse){
     SupplyRequest request = medWareHouse.getRequest(requestId);
-    std::cout << " I got here1" << std::endl;
-    std::cout << request.toString() << std::endl;
-    std::cout << " I got here2" << std::endl;
+    std::cout << "Request ID: " << request.getId() << "\n"
+              << "Request Status: " << request.statusToString(request.getStatus()) << "\n"
+              << "Beneficiary ID: " << request.getBeneficiaryId() << "\n"
+              << "Inventory Manager: " << (request.getInventoryManagerId() == NO_VOLUNTEER ? "None" : std::to_string(request.getInventoryManagerId())) << "\n"
+              << "Courier: " << (request.getCourierId() == NO_VOLUNTEER ? "None" : std::to_string(request.getCourierId())) << std::endl;
+              complete();
 }
 
 //Clone the PrintRequestStatus
@@ -215,7 +220,7 @@ PrintRequestStatus *PrintRequestStatus::clone() const {
 
 //Convert the PrintRequestStatus to a string
 string PrintRequestStatus::toString() const {
-    return "Print Request Status " + std::to_string(requestId);
+    return "requestStatus " + std::to_string(requestId) + " " + getErrorMsg();
 }
 
 //PrintBeneficiaryStatus Constructor
@@ -233,8 +238,8 @@ void PrintBeneficiaryStatus::act(MedicalWareHouse &medWareHouse){
         std::cout << "Request ID: " << i << std::endl;
         std::cout << "Request Status: " << request.statusToString(request.getStatus()) << std::endl;
     }
-
     std::cout << "Requests Left: " << ben.getMaxRequests() - ben.getNumRequests() << std::endl;
+    complete();
 }
 
     //Clone the PrintBeneficiaryStatus
@@ -244,7 +249,7 @@ void PrintBeneficiaryStatus::act(MedicalWareHouse &medWareHouse){
 
     //Convert the PrintBeneficiaryStatus to a string
     string PrintBeneficiaryStatus::toString() const {
-        return "Print Beneficiary Status " + std::to_string(beneficiaryId);
+        return "beneficiaryStatus " + std::to_string(beneficiaryId) + " " + getErrorMsg();
     }
 
     //Print Volunteer Status Constructor
@@ -255,6 +260,7 @@ void PrintBeneficiaryStatus::act(MedicalWareHouse &medWareHouse){
     void PrintVolunteerStatus::act(MedicalWareHouse &medWareHouse){
         Volunteer& vol = medWareHouse.getVolunteer(volunteerId);
         std::cout << vol.toString() << std::endl;
+        complete();
 
     }
 
@@ -266,7 +272,7 @@ void PrintBeneficiaryStatus::act(MedicalWareHouse &medWareHouse){
 
     //Convert the PrintVolunteerStatus to a string
     string PrintVolunteerStatus::toString() const {
-        return "Print Volunteer Status " + std::to_string(volunteerId);
+        return "volunteerStatus " + std::to_string(volunteerId) + " " + getErrorMsg();
     }
 
     //Print Actions Log Constructor
@@ -278,6 +284,7 @@ void PrintBeneficiaryStatus::act(MedicalWareHouse &medWareHouse){
         for(CoreAction* action : medWareHouse.getActions()){
             std::cout << action->toString() << std::endl;
         }
+        complete();
     }
 
     //Clone the PrintActionsLog
@@ -287,7 +294,11 @@ void PrintBeneficiaryStatus::act(MedicalWareHouse &medWareHouse){
 
     //Convert the PrintActionsLog to a string
     string PrintActionsLog::toString() const {
-        return "Print Actions Log";
+        string res ;
+        res+= "log";
+        res+= " ";
+        res+= getErrorMsg();
+        return res;
     }
 
     //Close Constructor
@@ -297,6 +308,7 @@ void PrintBeneficiaryStatus::act(MedicalWareHouse &medWareHouse){
     //Close the Medical Warehouse
     void Close::act(MedicalWareHouse &medWareHouse){
         medWareHouse.close();
+        complete();
         return;
         
     }
@@ -322,6 +334,7 @@ void PrintBeneficiaryStatus::act(MedicalWareHouse &medWareHouse){
         }
         backup = new MedicalWareHouse(medWareHouse);  // create a new backup
         std::cout << this->toString() << std::endl;
+        complete();
 
     }
 
@@ -348,6 +361,7 @@ void PrintBeneficiaryStatus::act(MedicalWareHouse &medWareHouse){
         }
         medWareHouse = *backup;
         std::cout << this->toString() << std::endl;
+        complete();
     }
 
 

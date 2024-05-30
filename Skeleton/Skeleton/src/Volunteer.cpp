@@ -84,7 +84,6 @@ int InventoryManagerVolunteer::getCoolDown() const {
 int InventoryManagerVolunteer::getTimeLeft() const {
     if (timeLeft==NO_REQUEST)
     {
-        std::cout << "No request is being processed" << std::endl;
         return -1;
     }
     return timeLeft;
@@ -123,7 +122,6 @@ bool InventoryManagerVolunteer::canTakeRequest(const SupplyRequest &request) con
 void InventoryManagerVolunteer::acceptRequest(const SupplyRequest &request) {
     if (!canTakeRequest(request))
     {
-        std::cout << "Volunteer can't take this request at this moment!" << std::endl;
         return;
     }
     activeRequestId = request.getId();
@@ -174,7 +172,6 @@ CourierVolunteer* CourierVolunteer::clone() const {
 int CourierVolunteer::getDistanceLeft() const {
     if(distanceLeft==NO_REQUEST)
     {
-        std::cout << "No request is being processed" << std::endl;
         return -1;
     }
     return distanceLeft;
@@ -216,7 +213,6 @@ bool CourierVolunteer::canTakeRequest(const SupplyRequest &request) const {
 void CourierVolunteer::acceptRequest(const SupplyRequest &request) {
     if (!canTakeRequest(request))
     {
-        std::cout << "Volunteer can't take this request at this moment!" << std::endl;
         return;
     }
     activeRequestId = request.getId();

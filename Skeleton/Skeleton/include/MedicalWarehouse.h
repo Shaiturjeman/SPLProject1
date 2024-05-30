@@ -24,7 +24,6 @@ class MedicalWareHouse {
         const vector<CoreAction*> &getActions() const;
         void close();
         void open();
-        bool isOpened() const;
         Volunteer *getInventoryManager();
         SupplyRequest *getPendingRequest();
         Volunteer *getCourierVolunteer(int distance);

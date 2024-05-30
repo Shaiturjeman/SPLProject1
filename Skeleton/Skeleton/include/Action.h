@@ -29,6 +29,7 @@ class CoreAction{
         virtual ~CoreAction();
 
 
+
     protected:
         void complete();
         void error(string errorMsg);
