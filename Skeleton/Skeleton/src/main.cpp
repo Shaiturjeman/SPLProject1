@@ -23,7 +23,6 @@ int main(int argc, char** argv){
     MedicalWareHouse  medWareHouse(configurationFile);
     medWareHouse.start();
     if(backup!=nullptr){
-        
     	delete backup;
     	backup = nullptr;
         }

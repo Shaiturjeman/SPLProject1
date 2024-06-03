@@ -73,7 +73,6 @@ void SimulateStep::act(MedicalWareHouse &medWareHouse){
 
 
     for (int i = 0; i < numOfSteps; ++i) {
-        std::cout << "Step " << i << std::endl;
         // Stage 1: Supply request processing
         InventoryManagerVolunteer *invManager = dynamic_cast<InventoryManagerVolunteer*>(medWareHouse.getInventoryManager());
         SupplyRequest *pendingRequest = medWareHouse.getPendingRequest();
